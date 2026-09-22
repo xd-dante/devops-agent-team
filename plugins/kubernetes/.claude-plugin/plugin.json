@@ -1,0 +1,9 @@
+{
+  "name": "kubernetes",
+  "description": "Read-only cluster investigation with ownership routing",
+  "version": "1.0.0",
+  "author": {
+    "name": "Pratik Makwana",
+    "url": "https://github.com/xd-dante"
+  }
+}

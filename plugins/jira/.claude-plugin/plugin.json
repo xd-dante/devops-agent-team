@@ -1,0 +1,9 @@
+{
+  "name": "jira",
+  "description": "Ticket context, creation, comments and transitions",
+  "version": "1.0.0",
+  "author": {
+    "name": "Pratik Makwana",
+    "url": "https://github.com/xd-dante"
+  }
+}

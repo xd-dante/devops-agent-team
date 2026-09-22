@@ -1,0 +1,9 @@
+{
+  "name": "aws",
+  "description": "Cloud resource investigation and cost analysis",
+  "version": "1.0.0",
+  "author": {
+    "name": "Pratik Makwana",
+    "url": "https://github.com/xd-dante"
+  }
+}

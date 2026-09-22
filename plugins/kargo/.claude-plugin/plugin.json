@@ -1,0 +1,9 @@
+{
+  "name": "kargo",
+  "description": "Freight, Warehouses, Stages and promotion diagnosis",
+  "version": "1.0.0",
+  "author": {
+    "name": "Pratik Makwana",
+    "url": "https://github.com/xd-dante"
+  }
+}

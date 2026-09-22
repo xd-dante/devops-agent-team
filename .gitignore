@@ -1,0 +1,23 @@
+# Local agent config — contains org-specific hostnames, accounts, repo names
+.devops-agents.yml
+
+# Editor / OS noise
+.DS_Store
+*.swp
+.idea/
+.vscode/
+
+# Local worktrees and scratch
+.worktree/
+scratch/
+*.local.md
+
+# Never commit credentials or state
+*.pem
+*.key
+*.tfstate
+*.tfstate.*
+.terraform/
+.env
+.env.*
+kubeconfig

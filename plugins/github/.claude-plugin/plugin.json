@@ -1,0 +1,9 @@
+{
+  "name": "github",
+  "description": "Worktrees, branches, pull requests, review rounds and CI",
+  "version": "1.0.0",
+  "author": {
+    "name": "Pratik Makwana",
+    "url": "https://github.com/xd-dante"
+  }
+}

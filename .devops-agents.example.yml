@@ -1,0 +1,48 @@
+# Copy to `.devops-agents.yml` at the root of the project (or workspace) you
+# work in, and fill in your own values. That file is gitignored here — it names
+# your hosts, accounts and repos, which are not this toolkit's business.
+#
+# Every key is OPTIONAL. Anything absent is discovered at runtime
+# (see docs/CONFIGURATION.md). Agents never hardcode these values.
+
+tracker:
+  type: jira                              # jira | github-issues | none
+  base_url: https://example.atlassian.net
+  project_key: OPS
+  ticket_pattern: "[A-Z]+-[0-9]+"
+
+vcs:
+  host: github
+  # {user} {type} {ticket} {slug}
+  branch_template: "{user}/{type}/{ticket}-{slug}"
+  commit_style: scopeless                 # scopeless -> "feat: ..." | scoped -> "feat(api): ..."
+  pr_title_template: "{type}: [{ticket}] {summary}"
+  worktree_layout: nested                 # nested -> <repo>/.worktree/<TICKET> | sibling | none
+
+  # Only needed where the remote's advertised default branch is wrong or
+  # ambiguous. Agents probe `origin/develop` then `origin/main` otherwise.
+  base_branch_overrides:
+    example-charts: develop
+
+repos:
+  - name: example-infra
+    role: terraform                       # terraform | helm | app | argocd | kargo
+    base: develop
+    submodules:
+      - path: modules/example-module
+        repo: example-module
+        base: main
+
+environments:
+  dev:
+    cloud_profile: example-nonprod        # AWS profile / equivalent
+    cluster: example-platform-dev
+  prod:
+    cloud_profile: example-prod
+    cluster: example-platform-prod
+    protected: true                       # agents require explicit confirmation
+
+policy:
+  terraform_targeted_only: true           # refuse untargeted plan/apply
+  cluster_read_only: true                 # cluster changes go through GitOps
+  require_pr: true                        # never push to a base branch

@@ -1,0 +1,111 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
+  "name": "devops-agent-team",
+  "version": "1.0.0",
+  "description": "Specialist DevOps agents with an orchestrator that assigns work to them",
+  "owner": {
+    "name": "Pratik Makwana",
+    "url": "https://github.com/xd-dante"
+  },
+  "plugins": [
+    {
+      "name": "orchestrator",
+      "description": "Routes DevOps tasks to specialist agents and reports back",
+      "version": "1.0.0",
+      "author": {
+        "name": "Pratik Makwana",
+        "url": "https://github.com/xd-dante"
+      },
+      "source": "./plugins/orchestrator",
+      "category": "development"
+    },
+    {
+      "name": "jira",
+      "description": "Ticket context, creation, comments and transitions",
+      "version": "1.0.0",
+      "author": {
+        "name": "Pratik Makwana",
+        "url": "https://github.com/xd-dante"
+      },
+      "source": "./plugins/jira",
+      "category": "productivity"
+    },
+    {
+      "name": "github",
+      "description": "Worktrees, branches, pull requests, review rounds and CI",
+      "version": "1.0.0",
+      "author": {
+        "name": "Pratik Makwana",
+        "url": "https://github.com/xd-dante"
+      },
+      "source": "./plugins/github",
+      "category": "productivity"
+    },
+    {
+      "name": "terraform",
+      "description": "Targeted plans and applies, modules, variables, state",
+      "version": "1.0.0",
+      "author": {
+        "name": "Pratik Makwana",
+        "url": "https://github.com/xd-dante"
+      },
+      "source": "./plugins/terraform",
+      "category": "development"
+    },
+    {
+      "name": "helm",
+      "description": "Chart authoring, values, library charts, render debugging",
+      "version": "1.0.0",
+      "author": {
+        "name": "Pratik Makwana",
+        "url": "https://github.com/xd-dante"
+      },
+      "source": "./plugins/helm",
+      "category": "development"
+    },
+    {
+      "name": "kubernetes",
+      "description": "Read-only cluster investigation with ownership routing",
+      "version": "1.0.0",
+      "author": {
+        "name": "Pratik Makwana",
+        "url": "https://github.com/xd-dante"
+      },
+      "source": "./plugins/kubernetes",
+      "category": "development"
+    },
+    {
+      "name": "argocd",
+      "description": "Application health, drift, pinned revisions, gated sync",
+      "version": "1.0.0",
+      "author": {
+        "name": "Pratik Makwana",
+        "url": "https://github.com/xd-dante"
+      },
+      "source": "./plugins/argocd",
+      "category": "development"
+    },
+    {
+      "name": "kargo",
+      "description": "Freight, Warehouses, Stages and promotion diagnosis",
+      "version": "1.0.0",
+      "author": {
+        "name": "Pratik Makwana",
+        "url": "https://github.com/xd-dante"
+      },
+      "source": "./plugins/kargo",
+      "category": "development"
+    },
+    {
+      "name": "aws",
+      "description": "Cloud resource investigation and cost analysis",
+      "version": "1.0.0",
+      "author": {
+        "name": "Pratik Makwana",
+        "url": "https://github.com/xd-dante"
+      },
+      "source": "./plugins/aws",
+      "category": "development"
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "name": "helm",
+  "description": "Chart authoring, values, library charts, render debugging",
+  "version": "1.0.0",
+  "author": {
+    "name": "Pratik Makwana",
+    "url": "https://github.com/xd-dante"
+  }
+}
