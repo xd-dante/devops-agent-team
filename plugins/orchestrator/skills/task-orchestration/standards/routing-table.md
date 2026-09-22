@@ -34,6 +34,21 @@ These pairs get confused. Resolve with the rule, not a guess.
 | "the database is expensive" | `aws-cost-agent` | Money questions always go to cost, same resource or not |
 | "add an env var to a service" | `helm-agent` + `terraform-agent` | Static vs computed decides the owner |
 
+## Cross-cutting: memory
+
+`memory` is a **skill every agent uses**, not a dispatch target. There is no
+memory agent, and nothing is routed to one.
+
+| Signal | Load |
+|--------|------|
+| Start of any task | `agent-memory/actions/recall.md` — standing instructions and relevant entries |
+| "keep in mind", "save this", "from now on", "always", "never" | `agent-memory/actions/remember.md` |
+| The user corrected you, or you rediscovered something expensive | `agent-memory/actions/suggest.md` — **offer**, never save silently |
+| "forget that", or an entry contradicts reality | `agent-memory/actions/forget.md` |
+
+Memory is local and gitignored. Never quote it into a commit, PR, or public
+document.
+
 ## Fan-out sets
 
 | Request shape | Set |

@@ -74,7 +74,10 @@ def check_links() -> None:
     pattern = re.compile(r"\[[^\]]+\]\((?!https?:|mailto:)([^)#]+)")
     for f in md_files():
         for match in pattern.finditer(f.read_text()):
-            target = (f.parent / match.group(1)).resolve()
+            href = match.group(1)
+            if any(c in href for c in "<>{}"):
+                continue  # templated placeholder, not a real link
+            target = (f.parent / href).resolve()
             if not target.exists():
                 errors.append(f"dead link in {f.relative_to(ROOT)}: {match.group(1)}")
 
@@ -84,7 +87,12 @@ def check_routing_table() -> None:
     if not table.exists():
         errors.append("missing routing-table.md")
         return
-    referenced = set(re.findall(r"`([a-z0-9-]+-agent)`", table.read_text()))
+    text = table.read_text()
+    referenced = {
+        name
+        for name in re.findall(r"`([a-z0-9-]+-agent)`", text)
+        if not re.search(rf"no\s+`{re.escape(name)}`", text)
+    }
     on_disk: set[str] = set()
     for f in ROOT.rglob("agents/*.md"):
         block = f.read_text().split("---\n", 2)[1]
@@ -112,6 +120,22 @@ FORBIDDEN = [
 ]
 
 
+def check_memory_not_committed() -> None:
+    """Real memory entries are site-specific by design and must stay local."""
+    mem = ROOT / "memory"
+    if not mem.exists():
+        return
+    allowed = {"README.md", ".gitignore"}
+    for f in mem.rglob("*"):
+        if f.is_dir() or SKIP_DIRS & set(f.parts):
+            continue
+        if f.name in allowed or f.name.endswith(".example"):
+            continue
+        errors.append(
+            f"real memory file committed (must stay local): {f.relative_to(ROOT)}"
+        )
+
+
 def check_forbidden() -> None:
     allow = re.compile(r"example|placeholder|<[a-z-]+>|\{[a-z_]+\}|your-org", re.I)
     for f in md_files() + [p for p in ROOT.rglob("*.yml") if not SKIP_DIRS & set(p.parts)]:
@@ -130,6 +154,7 @@ def main() -> int:
         check_frontmatter,
         check_links,
         check_routing_table,
+        check_memory_not_committed,
         check_forbidden,
     ):
         check()

@@ -171,6 +171,49 @@ Two routes, on purpose:
 That asymmetry is the whole loop-prevention design: reads can flow sideways,
 writes cannot.
 
+## Memory — local, and it learns
+
+Agents keep facts about **your** environment in a local, **gitignored**
+memory directory, so they stop re-deriving them and stop making you repeat
+corrections.
+
+```
+<memory-dir>/
+  MEMORY.md          index — one line per entry
+  instructions.md    your standing instructions, always loaded
+  entries/<slug>.md  one fact per file
+```
+
+Resolution order: `$DEVOPS_AGENT_MEMORY` → `<project>/.devops-agents/memory/`
+→ `~/.devops-agents/memory/`.
+
+```bash
+mkdir -p ~/.devops-agents/memory/entries
+cp memory/MEMORY.md.example       ~/.devops-agents/memory/MEMORY.md
+cp memory/instructions.md.example ~/.devops-agents/memory/instructions.md
+```
+
+| What you say | What happens |
+|--------------|--------------|
+| nothing — task starts | Standing instructions and relevant entries load |
+| "keep in mind…", "from now on…", "never…" | An entry is written |
+| you correct the agent | It **offers** to save a rule — showing the exact wording, never saving silently |
+| "forget that" | The entry is corrected or deleted |
+
+**`instructions.md` is treated as user instruction**, so it outranks the
+agents' own defaults. Put standing rules there:
+
+```markdown
+- Never touch production without me saying "production" explicitly.
+- Paste plan output in full; do not summarise it.
+- Prefer several small PRs over one large one.
+```
+
+Memory never leaves your machine. Agents do not quote it into a commit, a PR,
+or any file in this repo. A *lesson* from memory can be generalised into a
+rule here — mechanism and consequence kept, identifier dropped — but the
+entry stays local. Details: [`memory/README.md`](memory/README.md).
+
 ## Safety model
 
 The reason to write an agent per domain is that each domain has different
@@ -218,6 +261,8 @@ names are not this toolkit's business.
 | [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | The four-layer model, routing, handoffs, why it is shaped this way |
 | [`docs/CONFIGURATION.md`](docs/CONFIGURATION.md) | Config keys and the runtime-discovery fallbacks |
 | [`docs/WRITING-AGENTS.md`](docs/WRITING-AGENTS.md) | Adding an agent, a skill, or an action — with the file templates |
+| [`CLAUDE.md`](CLAUDE.md) | Instructions for Claude Code working in this repo — the generalisation rule above all |
+| [`memory/README.md`](memory/README.md) | The local memory directory: layout, setup, privacy |
 | [`CONTRIBUTING.md`](CONTRIBUTING.md) | Conventions, the review bar, and what not to commit |
 
 ## Status

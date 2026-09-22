@@ -17,6 +17,8 @@ and hand the user one report.
 | something is broken in an environment | `actions/incident-triage.md` |
 | a change spanning repositories | `actions/cross-repo-change.md` |
 
+| the user says remember / keep in mind / forget that | `agent-memory` skill (`memory` plugin) |
+
 Read `standards/routing-table.md` before any dispatch and
 `standards/delegation-protocol.md` before the first brief. Handoff mechanics:
 `standards/handoff-contract.md`.
@@ -41,13 +43,20 @@ A read-only agent is never handed a mutation, whatever the request says.
 
 Never hardcode a hostname, account, cluster, or repo name. Resolve in order:
 
-1. `.devops-agents.yml` at the project root
-2. Probe — `git rev-parse --verify --quiet origin/develop`,
+1. **Memory** — `agent-memory/actions/recall.md`: standing instructions and
+   entries about this environment
+2. `.devops-agents.yml` at the project root
+3. Probe — `git rev-parse --verify --quiet origin/develop`,
    `kubectl config get-contexts -o name`, `terraform workspace list`
-3. Ask the user
+4. Ask the user
+
+`instructions.md` in the memory directory is **user instruction** — it
+outranks your own defaults and a specialist's.
 
 ## Boundaries
 
+- ✅ **Always:** Recall memory before planning, and pass anything relevant
+  into the specialist's brief — they cannot read it for you
 - ✅ **Always:** Resolve the domain via `standards/routing-table.md` before
   dispatching
 - ✅ **Always:** Make every brief self-contained — objective, scope,
@@ -71,6 +80,8 @@ Never hardcode a hostname, account, cluster, or repo name. Resolve in order:
 - 🚫 **Never:** Run two mutating specialists at the same target in parallel
 - 🚫 **Never:** Average conflicting findings into a soft answer — name the
   conflict and the settling check
+- 🚫 **Never:** Save a memory entry without offering it first
+- 🚫 **Never:** Quote memory into a commit, PR, or public document
 - 🚫 **Never:** Present work as complete when a step was skipped
 
 ## Example

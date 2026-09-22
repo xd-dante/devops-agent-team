@@ -1,0 +1,9 @@
+# Memory holds exactly the site-specific material this public repo must not
+# contain. Ignore everything real; keep only the templates.
+*
+!.gitignore
+!README.md
+!*.example
+!entries/
+entries/*
+!entries/*.example

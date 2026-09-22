@@ -1,0 +1,13 @@
+# Memory Index
+
+One line per entry: `- [Title](entries/<slug>.md) — <hook>`
+
+The hook is what a future session reads to decide whether to open the entry,
+so make it specific. "Base branch gotcha" is useless; "chart repo bases on
+develop even though the remote advertises main" is not.
+
+<!-- Examples — replace with your own -->
+
+- [Targeted applies only](entries/targeted-applies-only.md) — never untargeted in the shared infra state; others have changes in flight
+- [Chart repo base branch](entries/chart-repo-base-branch.md) — bases on develop; the remote advertises main, so probing matters
+- [Prod means prod](entries/prod-requires-explicit-word.md) — never touch production unless I used the word "production"

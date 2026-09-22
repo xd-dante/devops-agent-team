@@ -21,3 +21,10 @@ scratch/
 .env
 .env.*
 kubeconfig
+
+# Local agent memory — site-specific by design, never committed here
+.devops-agents/
+memory/MEMORY.md
+memory/instructions.md
+memory/entries/*.md
+!memory/entries/*.example

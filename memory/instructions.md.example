@@ -1,0 +1,14 @@
+# Standing instructions
+
+Freeform. Always loaded. Treated as user instruction, so it outranks the
+agents' own defaults.
+
+Keep it short — this file is loaded on every task.
+
+<!-- Examples — replace with your own -->
+
+- Never touch production without me saying "production" explicitly.
+- Open PRs against `develop` in the chart repos, `main` everywhere else.
+- Paste plan output in full; do not summarise it.
+- Prefer several small single-purpose PRs over one large one.
+- Always give me the PR URL inline, not just at the end.

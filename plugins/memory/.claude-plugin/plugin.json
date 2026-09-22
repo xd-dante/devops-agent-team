@@ -1,0 +1,9 @@
+{
+  "name": "memory",
+  "description": "Local, gitignored memory so agents stop repeating corrections",
+  "version": "1.0.0",
+  "author": {
+    "name": "Pratik Makwana",
+    "url": "https://github.com/xd-dante"
+  }
+}

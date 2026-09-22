@@ -1,0 +1,18 @@
+---
+name: example-entry
+description: One line a future session reads to decide if this entry is relevant
+type: preference
+scope: global
+created: 2026-01-01
+---
+
+The fact, stated plainly in one or two sentences.
+
+**Why:** what makes this non-obvious — the failure it prevents, or the
+correction that produced it. An entry without a why gets ignored or
+argued with later.
+
+**How to apply:** what to actually do differently, concretely enough to act
+on without re-deriving it.
+
+Link related entries with [[their-name]].
