@@ -8,7 +8,16 @@ every one can lose infrastructure if the address is wrong.
 - [ ] The user asked for this operation, or approved it after you proposed it
 - [ ] Workspace confirmed with `terraform workspace show`
 - [ ] Cloud identity confirmed
-- [ ] The exact address verified against `terraform state list`
+- [ ] The exact address checked against `terraform state list` **in the
+      direction the operation needs**:
+
+| Operation | The address must be |
+|-----------|---------------------|
+| `import` | **absent** from state, and present in the configuration |
+| `state rm` / `state mv` / `-replace` | **present** in state |
+
+An `import` whose address is already in state is a different problem — stop
+and report it rather than forcing it.
 
 ## Inspect first
 

@@ -86,9 +86,26 @@ Retrieving a credential and then authenticating to an external host with it
 is not something this agent completes. Prepare the container, place the key,
 then hand over the exact command:
 
+Pin the host key first, then connect with verification **on**:
+
 ```bash
-kubectl exec -it "$POD" -n <ns> -c "$DBG" -- <client> -i /tmp/k <user>@<host>
+# 1. capture the host key, and check the fingerprint against the one the
+#    vendor published — out of band, not from this same connection
+kubectl exec "$POD" -n <ns> -c "$DBG" -- ssh-keyscan -p <port> <host> > /tmp/known_hosts
+kubectl exec "$POD" -n <ns> -c "$DBG" -- ssh-keygen -lf /tmp/known_hosts
+
+# 2. connect with verification enabled
+kubectl exec -it "$POD" -n <ns> -c "$DBG" -- <client> \
+  -o StrictHostKeyChecking=yes -o UserKnownHostsFile=/tmp/known_hosts \
+  -i /tmp/k <user>@<host>
 ```
+
+**Never disable host-key checking while presenting a private key.**
+`StrictHostKeyChecking=no` with `UserKnownHostsFile=/dev/null` authenticates
+you to whatever answers the address — a DNS mistake or an interception takes
+the credential and nothing detects it. If the server only offers a legacy key
+algorithm, add that as a narrow stated exception; it is orthogonal to host
+verification and does not justify turning it off.
 
 Retrieving a file afterwards: `kubectl cp -n <ns> -c "$DBG" "$POD:/tmp/<file>" <dest>`
 
