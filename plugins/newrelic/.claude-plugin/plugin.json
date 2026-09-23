@@ -1,0 +1,9 @@
+{
+  "name": "newrelic",
+  "description": "Daily observability triage — alerts, entity health and dashboards",
+  "version": "1.0.0",
+  "author": {
+    "name": "Pratik Makwana",
+    "url": "https://github.com/xd-dante"
+  }
+}

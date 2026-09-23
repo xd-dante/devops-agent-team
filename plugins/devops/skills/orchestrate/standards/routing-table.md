@@ -18,6 +18,7 @@ The dispatch contract. A domain is resolved here, not from intuition.
 | Promotion: Freight, Warehouse, Stage, PromotionTask | `kargo-promoter` | `kargo` | `kargo-promote` |
 | Cloud resource behaviour: database, network, IAM, logs | `aws-investigator` | `aws` | `aws-investigate` |
 | Cloud money: cost, spend, bill, rightsizing, savings | `aws-cost-analyzer` | `aws` | `aws-cost-analysis` |
+| Observability: is anything wrong, daily check, alert coverage, dashboards | `newrelic-analyst` | `newrelic` | `newrelic-triage` |
 
 ## Disambiguation
 
@@ -32,6 +33,9 @@ These pairs get confused. Resolve with the rule, not a guess.
 | "node count / autoscaling" | `kubernetes-investigator` | Read from the cluster; the fix lands in Terraform |
 | "the database is slow" | `aws-investigator` | Engine and instance behaviour |
 | "the database is expensive" | `aws-cost-analyzer` | Money questions always go to cost, same resource or not |
+| "is anything broken?" with no service named | `newrelic-analyst` | Start from the monitoring verdict; it names which service to dig into |
+| "why is `<service>` slow" | `newrelic-analyst`, then the owner it routes to | Golden signals say *which* kind of slow, which decides the next agent |
+| "we got paged, what happened" | `newrelic-analyst` | It holds the issue and deploy timeline; the cluster agent holds the pod evidence |
 | "add an env var to a service" | `helm-engineer` + `terraform-engineer` | Static vs computed decides the owner |
 
 ## Cross-cutting: memory
@@ -54,7 +58,8 @@ document.
 | Request shape | Set |
 |---------------|-----|
 | Ticket delivery | `ticket-analyst` → domain specialists → `delivery-engineer` |
-| "X is down in \<env\>" | `kubernetes-investigator` + `argocd-analyst` + `aws-investigator` in parallel, then one root cause |
+| "X is down in \<env\>" | `newrelic-analyst` for the timeline, plus `kubernetes-investigator` + `argocd-analyst` + `aws-investigator` in parallel, then one root cause |
+| Daily / morning check | `newrelic-analyst` alone — it escalates only what it finds |
 | Deploy not arriving | `kargo-promoter` + `argocd-analyst` |
 | Cost review | `aws-cost-analyzer`, then `terraform-engineer` for the fix |
 | Value change across repos | `helm-engineer` + `terraform-engineer`, ordered by dependency |
