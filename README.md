@@ -78,6 +78,7 @@ a missing plugin rather than silently substituting a different agent.
 | `aws-investigator` | `aws` | Why a cloud resource misbehaves | **read-only** |
 | `aws-cost-analyzer` | `aws` | Spend, rightsizing, savings | **read-only** |
 | `newrelic-analyst` | `newrelic` | Daily observability triage, alert coverage, dashboards | **read-only** |
+| `codegraph-navigator` | `codegraph` | Where code is used, who calls it, blast radius before an edit | **read-only** |
 
 AWS is deliberately two agents. "Why is this broken" and "why is this
 expensive" use different tools, and conflating them produces bad answers to

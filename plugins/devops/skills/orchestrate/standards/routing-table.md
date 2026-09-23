@@ -19,6 +19,7 @@ The dispatch contract. A domain is resolved here, not from intuition.
 | Cloud resource behaviour: database, network, IAM, logs | `aws-investigator` | `aws` | `aws-investigate` |
 | Cloud money: cost, spend, bill, rightsizing, savings | `aws-cost-analyzer` | `aws` | `aws-cost-analysis` |
 | Observability: is anything wrong, daily check, alert coverage, dashboards | `newrelic-analyst` | `newrelic` | `newrelic-triage` |
+| Where is this used, who calls it, what will this break | `codegraph-navigator` | `codegraph` | `navigate` |
 
 ## Disambiguation
 
@@ -36,6 +37,8 @@ These pairs get confused. Resolve with the rule, not a guess.
 | "is anything broken?" with no service named | `newrelic-analyst` | Start from the monitoring verdict; it names which service to dig into |
 | "why is `<service>` slow" | `newrelic-analyst`, then the owner it routes to | Golden signals say *which* kind of slow, which decides the next agent |
 | "we got paged, what happened" | `newrelic-analyst` | It holds the issue and deploy timeline; the cluster agent holds the pod evidence |
+| "will this change break anything" | `codegraph-navigator` | Impact radius before the edit; it routes on to the domain owner |
+| "where is this value set" in a config repo | the owning domain agent, not `codegraph-navigator` | A call graph adds nothing on Terraform or charts — the domain agent knows the value paths |
 | "add an env var to a service" | `helm-engineer` + `terraform-engineer` | Static vs computed decides the owner |
 
 ## Cross-cutting: memory
@@ -57,7 +60,7 @@ document.
 
 | Request shape | Set |
 |---------------|-----|
-| Ticket delivery | `ticket-analyst` → domain specialists → `delivery-engineer` |
+| Ticket delivery | `ticket-analyst` → `delivery-engineer` (worktree) → `codegraph-navigator` (orient, if the repo is unfamiliar) → domain specialists → `delivery-engineer` (PR) |
 | "X is down in \<env\>" | `newrelic-analyst` for the timeline, plus `kubernetes-investigator` + `argocd-analyst` + `aws-investigator` in parallel, then one root cause |
 | Daily / morning check | `newrelic-analyst` alone — it escalates only what it finds |
 | Deploy not arriving | `kargo-promoter` + `argocd-analyst` |
