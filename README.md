@@ -18,7 +18,7 @@ rules, and a **manager** that decides who does what.
    jira      github    terraform  helm   kubernetes  argocd     kargo
    agent      agent      agent    agent    agent      agent     agent
                                     │
-                              aws-investigator · aws-cost
+                        aws-investigator · aws-cost · newrelic-analyst
      └──────────┴──────────┴────────┼────────┴──────────┴──────────┘
                                     │
                          one consolidated report ───▶ you
@@ -51,7 +51,8 @@ Then enable what you need in `settings.json`:
     "jira@devops-agent-team": true,
     "github@devops-agent-team": true,
     "terraform@devops-agent-team": true,
-    "kubernetes@devops-agent-team": true
+    "kubernetes@devops-agent-team": true,
+    "newrelic@devops-agent-team": true
   }
 }
 ```
@@ -76,6 +77,7 @@ a missing plugin rather than silently substituting a different agent.
 | `kargo-promoter` | `kargo` | Freight, Warehouses, Stages, promotions | gated |
 | `aws-investigator` | `aws` | Why a cloud resource misbehaves | **read-only** |
 | `aws-cost-analyzer` | `aws` | Spend, rightsizing, savings | **read-only** |
+| `newrelic-analyst` | `newrelic` | Daily observability triage, alert coverage, dashboards | **read-only** |
 
 AWS is deliberately two agents. "Why is this broken" and "why is this
 expensive" use different tools, and conflating them produces bad answers to
@@ -114,6 +116,7 @@ The same entry point handles other shapes of work:
 | You say | Flow |
 |---------|------|
 | "work on PROJ-412" | `deliver-ticket` — the full lifecycle above |
+| "anything broken this morning?" | `newrelic-analyst` — one verdict, exceptions only; escalates just what it finds |
 | "why is checkout down in staging?" | `incident-triage` — kubernetes + argocd + aws fan out in parallel, read-only, then one root cause |
 | "bump the memory limit for the api service" | `route-task` — classify, dispatch to one owner, verify |
 | "this value needs to change in two repos" | `cross-repo-change` — classify the value, order the merges |

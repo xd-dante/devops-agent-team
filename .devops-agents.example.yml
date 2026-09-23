@@ -42,6 +42,30 @@ environments:
     cluster: example-platform-prod
     protected: true                       # agents require explicit confirmation
 
+observability:
+  provider: newrelic                      # newrelic | none
+  region: US                              # US | EU — wrong region returns an EMPTY account, not an error
+  account_id: "1234567"
+  api_key_env: NEW_RELIC_API_KEY          # the key itself lives in the environment, never here
+
+  # Services the daily digest treats as critical. Anything alerting here is
+  # act-now; anything here with no alert condition is a coverage gap.
+  critical_services:
+    - example-checkout-api
+    - example-payments-worker
+
+  # Dashboards the digest spot-checks. A full audit is a separate action.
+  dashboards:
+    - name: Example platform overview
+      guid: "<dashboard entity guid>"
+
+  # Override the defaults in the signal-triage standard.
+  thresholds:
+    error_rate_pct: 1
+    p95_latency_ms: 800
+    apdex_min: 0.9
+    throughput_drop_pct: 50               # vs the same hour last week
+
 policy:
   terraform_targeted_only: true           # refuse untargeted plan/apply
   cluster_read_only: true                 # cluster changes go through GitOps
