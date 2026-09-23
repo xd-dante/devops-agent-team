@@ -1,13 +1,17 @@
 ---
 name: task-orchestration
 description: 'Route a DevOps task to the specialist agent that owns it and return one verified report. Use for ticket delivery end to end, incident triage across domains, changes that cross repositories, or any request where the right specialist is not obvious. Triggers on "work on <ticket>", "handle this", "why is <service> down in <env>", "who owns this change".'
-allowed-tools: Bash
 ---
 
 # Task Orchestration
 
 The dispatcher. It classifies a request, routes it to the agent carrying that
 domain's standards, verifies what comes back, and returns one report.
+
+Deliberately **not** tool-restricted: dispatching specialists and reading a
+tracker needs the delegation and MCP tools, so a `Bash`-only restriction
+would leave every action unable to do its one job. Restrictions belong on the
+specialist skills, where the blast radius actually is.
 
 **It coordinates; it does not do the specialists' work.** Writing Terraform
 or reading pod logs directly means skipping the standards that agent would

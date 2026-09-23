@@ -52,10 +52,14 @@ commit **excludes** the pointer.
 ## Step 5 — Validate both sides
 
 ```bash
-terraform init -upgrade
+terraform init                  # NOT -upgrade
 terraform validate
 terraform fmt -recursive        # revert unrelated pre-existing drift
 ```
+
+`-upgrade` re-resolves providers and modules and rewrites the lock file — a
+version bump, which `standards/safety-protocol.md` classes as ask-first. It
+does not belong in a routine module change.
 
 Then a **targeted plan against a real consumer**, so the variable shape is
 exercised rather than merely parsed.
