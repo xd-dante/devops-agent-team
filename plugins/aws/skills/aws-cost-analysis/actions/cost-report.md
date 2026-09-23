@@ -50,7 +50,7 @@ Total: <amount>/mo        Addressable: <amount>/mo across <n> findings
 
 Ranked recommendations
  1. <finding> — <amount>/mo | confidence <x> | effort low | risk <y>
-    Owner: terraform-agent → <repo>/<file>
+    Owner: terraform-engineer → <repo>/<file>
     Action: <the specific change>
 
 Verified clean
@@ -68,10 +68,10 @@ Nothing was mutated.
 ## Step 6 — Route the follow-up
 
 Each accepted item becomes an infrastructure change:
-`HANDOFF → terraform-agent` with the repo and file named. Protected
+`HANDOFF → terraform-engineer` with the repo and file named. Protected
 environments need their own confirmation.
 
-For tracking, `HANDOFF → jira-agent` — **one ticket per independently
+For tracking, `HANDOFF → ticket-analyst` — **one ticket per independently
 actionable item**, not one omnibus ticket.
 
 ## Common mistakes

@@ -48,7 +48,7 @@ kubectl describe node <node> | sed -n '/Allocated resources:/,/Events:/p'
 ```
 
 So an oversized node pool is usually the symptom of oversized pod requests —
-a chart change (`helm-agent`), not a pool change (`terraform-agent`). Say
+a chart change (`helm-engineer`), not a pool change (`terraform-engineer`). Say
 which.
 
 ## Step 5 — Existing commitments

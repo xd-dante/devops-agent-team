@@ -84,7 +84,7 @@ widening.
 
 `type` is one of `preference`, `convention`, `environment`, `incident`,
 `reference` — see
-`plugins/memory/skills/agent-memory/standards/what-to-remember.md`.
+`plugins/memory/skills/remember/standards/what-to-remember.md`.
 
 ## How agents use it
 

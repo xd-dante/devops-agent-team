@@ -1,0 +1,9 @@
+{
+  "name": "devops",
+  "description": "Lead agent that routes DevOps tasks to specialist agents",
+  "version": "1.0.0",
+  "author": {
+    "name": "Pratik Makwana",
+    "url": "https://github.com/xd-dante"
+  }
+}

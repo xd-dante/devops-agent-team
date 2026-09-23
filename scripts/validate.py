@@ -83,25 +83,30 @@ def check_links() -> None:
 
 
 def check_routing_table() -> None:
-    table = ROOT / "plugins/orchestrator/skills/task-orchestration/standards/routing-table.md"
+    table = ROOT / "plugins/devops/skills/orchestrate/standards/routing-table.md"
     if not table.exists():
         errors.append("missing routing-table.md")
         return
     text = table.read_text()
-    referenced = {
-        name
-        for name in re.findall(r"`([a-z0-9-]+-agent)`", text)
-        if not re.search(rf"no\s+`{re.escape(name)}`", text)
-    }
+
+    # every agent that exists on disk, by its frontmatter name
     on_disk: set[str] = set()
     for f in ROOT.rglob("agents/*.md"):
         block = f.read_text().split("---\n", 2)[1]
         found = re.search(r"^name:\s*(\S+)", block, re.M)
         if found:
             on_disk.add(found.group(1))
-    for name in sorted(referenced - on_disk):
-        errors.append(f"routing table references unknown agent: {name}")
-    for name in sorted(on_disk - referenced - {"devops-orchestrator"}):
+
+    # backticked tokens in the table that look like an agent but do not exist,
+    # ignoring any the table explicitly says does not exist
+    backticked = set(re.findall(r"`([a-z][a-z0-9-]{3,})`", text))
+    for name in sorted(backticked & {n for n in backticked if n.endswith(("-agent", "-lead", "-analyst",
+                                    "-engineer", "-investigator", "-analyzer", "-promoter"))}):
+        if name not in on_disk and not re.search(rf"no\s+`?{re.escape(name)}`?", text):
+            errors.append(f"routing table references unknown agent: {name}")
+
+    # the lead agent is the dispatcher, not a dispatch target
+    for name in sorted(on_disk - backticked - {"ops-lead"}):
         warnings.append(f"agent not in routing table (never dispatched): {name}")
 
 

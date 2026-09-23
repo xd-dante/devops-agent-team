@@ -38,7 +38,7 @@ separate `Never` lists.
 
 ## Routing
 
-`plugins/orchestrator/skills/task-orchestration/standards/routing-table.md`
+`plugins/devops/skills/orchestrate/standards/routing-table.md`
 maps a domain signal to an agent, and — more usefully — holds the
 **disambiguation rules** for requests that genuinely look like two domains:
 

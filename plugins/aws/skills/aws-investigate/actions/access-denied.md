@@ -67,7 +67,7 @@ Simulator: <Allow | ExplicitDeny | ImplicitDeny> — matched: <policy ids>
 Binding:   sa annotation <ok?> | pod uses sa <ok?> | trust subject <ok?> | provider <registered?>
 Resource policy / key: <findings>
 Root cause: <the specific missing permission or mismatch>
-Owner:     terraform-agent → <repo>
+Owner:     terraform-engineer → <repo>
 Nothing was mutated.
 ```
 
