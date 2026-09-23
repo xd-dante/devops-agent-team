@@ -89,7 +89,7 @@ short version:
 5. `standards/` — rules, not procedure, plus a `checklist.md`
 6. Register in **both**:
    - `.claude-plugin/marketplace.json`
-   - `plugins/orchestrator/skills/task-orchestration/standards/routing-table.md`
+   - `plugins/devops/skills/orchestrate/standards/routing-table.md`
 
 > An agent absent from the routing table is never dispatched, however good
 > its description is. This is the step people forget.
@@ -114,6 +114,18 @@ That row is usually worth more than the agent itself.
 
 - New rule that applies across actions → `standards/`, not repeated in each
   action.
+
+## Naming convention
+
+| Thing | Shape | Examples |
+|-------|-------|----------|
+| Plugin | the domain only — never a behaviour | `terraform`, `kargo`, `devops` |
+| Skill | `<noun>-<verb\|gerund>` | `terraform-change`, `k8s-triage`, `argocd-diagnose` |
+| Agent | `<domain>-<role>`, **no `-agent` suffix** | `terraform-engineer`, `aws-cost-analyzer` |
+| Action | `<verb>-<noun>` | `targeted-apply`, `open-pull-request` |
+
+A name that describes a bucket rather than a job invites work the skill does
+not do. Renaming later breaks every call site, so get it right on the way in.
 
 ## House style
 

@@ -80,7 +80,7 @@ Ceiling:   max connections <n> (source: <default|user>)   Peak used: <n>
 Metrics:   cpu <x>%  mem <y>  credits <z>  storage <free>
 Logs:      <key error lines, verbatim>
 Root cause: <explanation or ranked hypotheses>
-Owner:     terraform-agent → <repo>/<file>
+Owner:     terraform-engineer → <repo>/<file>
 Nothing was mutated.
 ```
 

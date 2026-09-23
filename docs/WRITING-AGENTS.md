@@ -2,6 +2,20 @@
 
 Adding a domain means four files and one table row.
 
+## 0. Naming
+
+| Thing | Shape | Examples |
+|-------|-------|----------|
+| Plugin | the domain only | `terraform`, `kargo` |
+| Skill | `<noun>-<verb\|gerund>` | `terraform-change`, `k8s-triage`, `pr-deliver` |
+| Agent | `<domain>-<role>`, **no `-agent` suffix** | `terraform-engineer`, `aws-cost-analyzer` |
+| Action | `<verb>-<noun>` | `targeted-apply`, `triage-workload` |
+
+The skill `description` is what the harness matches on, but the name is what a
+human types and reasons about — so it should say what the skill *does*, not
+which bucket it belongs to. `argocd-operations` was a bucket; `argocd-diagnose`
+is a job.
+
 ## 1. Plugin manifest
 
 `plugins/<domain>/.claude-plugin/plugin.json`
@@ -46,7 +60,7 @@ third. Never hardcode a hostname, account or repo name.>
 
 | Finding | Hand to |
 |---------|---------|
-| <out-of-domain finding> | `<other>-agent` |
+| <out-of-domain finding> | `<other-domain>-<role>` |
 
 ## Boundaries
 
@@ -155,7 +169,7 @@ table — the mistakes table is where the real operational knowledge lives.
 ```
 
 **Routing table** —
-`plugins/orchestrator/skills/task-orchestration/standards/routing-table.md`.
+`plugins/devops/skills/orchestrate/standards/routing-table.md`.
 
 > An agent absent from the routing table is never dispatched. This is the
 > step people forget.

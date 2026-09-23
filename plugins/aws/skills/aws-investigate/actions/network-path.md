@@ -88,7 +88,7 @@ Groups:    dest inbound <allows?>   source egress <allows?>   pod identity: <yes
 Routes:    <egress route present?>   Zone: <zone>
 Flow logs: <accept | reject on <interface> <port>>
 Break at:  <the first failing hop>
-Owner:     terraform-agent → <repo>/<file>
+Owner:     terraform-engineer → <repo>/<file>
 Nothing was mutated.
 ```
 

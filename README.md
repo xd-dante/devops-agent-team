@@ -10,7 +10,7 @@ rules, and a **manager** that decides who does what.
 
 ```
                          ┌──────────────────────┐
-        you ─── task ───▶│ devops-orchestrator  │
+        you ─── task ───▶│       ops-lead       │
                          └──────────┬───────────┘
                                     │ routes + briefs + verifies
      ┌──────────┬──────────┬────────┼────────┬──────────┬──────────┐
@@ -47,7 +47,7 @@ Then enable what you need in `settings.json`:
 ```json
 {
   "enabledPlugins": {
-    "orchestrator@devops-agent-team": true,
+    "devops@devops-agent-team": true,
     "jira@devops-agent-team": true,
     "github@devops-agent-team": true,
     "terraform@devops-agent-team": true,
@@ -59,23 +59,23 @@ Then enable what you need in `settings.json`:
 Project-level `.claude/settings.json` for the stack the whole team works on;
 user-level `~/.claude/settings.json` for your personal additions.
 
-Enable `orchestrator` plus whichever specialists match your stack. It reports
+Enable `devops` plus whichever specialists match your stack. It reports
 a missing plugin rather than silently substituting a different agent.
 
 ## The team
 
 | Agent | Plugin | Owns | Mutates? |
 |-------|--------|------|----------|
-| `devops-orchestrator` | `orchestrator` | Routing, briefing, verification, one report | no |
-| `jira-agent` | `jira` | Ticket context, creation, comments, transitions, search | tracker only |
-| `github-agent` | `github` | Worktrees, branches, commits, PRs, review rounds, CI | repo only |
-| `terraform-agent` | `terraform` | Targeted plans/applies, modules, variables, state | gated |
-| `helm-agent` | `helm` | Chart authoring, values, library charts, render debugging | files only |
-| `kubernetes-agent` | `kubernetes` | Live cluster investigation | **read-only** |
-| `argocd-agent` | `argocd` | Application health, drift, pinned revisions, sync | gated |
-| `kargo-agent` | `kargo` | Freight, Warehouses, Stages, promotions | gated |
-| `aws-investigator-agent` | `aws` | Why a cloud resource misbehaves | **read-only** |
-| `aws-cost-agent` | `aws` | Spend, rightsizing, savings | **read-only** |
+| `ops-lead` | `devops` | Routing, briefing, verification, one report | no |
+| `ticket-analyst` | `jira` | Ticket context, creation, comments, transitions, search | tracker only |
+| `delivery-engineer` | `github` | Worktrees, branches, commits, PRs, review rounds, CI | repo only |
+| `terraform-engineer` | `terraform` | Targeted plans/applies, modules, variables, state | gated |
+| `helm-engineer` | `helm` | Chart authoring, values, library charts, render debugging | files only |
+| `kubernetes-investigator` | `kubernetes` | Live cluster investigation | **read-only** |
+| `argocd-analyst` | `argocd` | Application health, drift, pinned revisions, sync | gated |
+| `kargo-promoter` | `kargo` | Freight, Warehouses, Stages, promotions | gated |
+| `aws-investigator` | `aws` | Why a cloud resource misbehaves | **read-only** |
+| `aws-cost-analyzer` | `aws` | Spend, rightsizing, savings | **read-only** |
 
 AWS is deliberately two agents. "Why is this broken" and "why is this
 expensive" use different tools, and conflating them produces bad answers to
@@ -88,19 +88,19 @@ Say you hand the orchestrator a ticket:
 > work on PROJ-412
 
 ```
-1. jira-agent          read the ticket — description, acceptance criteria,
+1. ticket-analyst          read the ticket — description, acceptance criteria,
                        every attachment, the full comment thread
                        (no ticket id given? it creates one first)
    ↓ 🛑 confirms the understood scope with you before touching anything
 
-2. github-agent        resolve the base branch, create the branch and an
+2. delivery-engineer        resolve the base branch, create the branch and an
                        isolated worktree, install dependencies
 
-3. domain specialists  terraform-agent / helm-agent / argocd-agent /
-                       kargo-agent — whoever owns the files being changed,
+3. domain specialists  terraform-engineer / helm-engineer / argocd-analyst /
+                       kargo-promoter — whoever owns the files being changed,
                        all working inside that worktree
 
-4. github-agent        commit, push, open the PR, check CI
+4. delivery-engineer        commit, push, open the PR, check CI
 
 5. orchestrator        one report: what changed, PR links, merge order,
                        and anything it could not finish
@@ -117,6 +117,21 @@ The same entry point handles other shapes of work:
 | "why is checkout down in staging?" | `incident-triage` — kubernetes + argocd + aws fan out in parallel, read-only, then one root cause |
 | "bump the memory limit for the api service" | `route-task` — classify, dispatch to one owner, verify |
 | "this value needs to change in two repos" | `cross-repo-change` — classify the value, order the merges |
+
+## Naming
+
+Consistent enough that you can guess a name before looking it up:
+
+| Thing | Shape | Examples |
+|-------|-------|----------|
+| **Plugin** | the domain, nothing else | `terraform`, `kargo`, `devops` |
+| **Skill** | `<noun>-<verb\|gerund>` — *how to do X* | `terraform-change`, `k8s-triage`, `argocd-diagnose`, `pr-deliver` |
+| **Agent** | `<domain>-<role>` — *who does it* | `terraform-engineer`, `kubernetes-investigator`, `aws-cost-analyzer` |
+| **Action** | `<verb>-<noun>` — one flow | `targeted-apply`, `triage-workload`, `open-pull-request` |
+
+No `-agent` suffix: it carries no information, and the role noun says more.
+A plugin is never named after a behaviour — `devops` holds the lead agent and
+the cross-cutting skills, so adding a second one does not require renaming it.
 
 ## How the agents are built
 
@@ -152,7 +167,7 @@ Specialists have no shared memory — each starts cold. So handoffs are an
 explicit, structured block rather than an assumption:
 
 ```
-HANDOFF → terraform-agent
+HANDOFF → terraform-engineer
 objective: raise the connection ceiling for the orders database in staging
 context:   max_connections is 110 on the current instance class; peak
            usage hit 108 at 14:20 UTC
@@ -165,7 +180,7 @@ Two routes, on purpose:
 - **Mutations always go back through the orchestrator.** It owns sequencing
   and approval, so agents cannot chain changes between themselves.
 - **Read-only questions may go peer to peer**, one hop deep, and must be
-  reported. This is what lets `argocd-agent` ask `kubernetes-agent` "are the
+  reported. This is what lets `argocd-analyst` ask `kubernetes-investigator` "are the
   pods actually ready?" without a round trip.
 
 That asymmetry is the whole loop-prevention design: reads can flow sideways,
