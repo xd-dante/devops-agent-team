@@ -37,6 +37,22 @@ If the chart renders a credentials secret and the live secret already carries
 real values from another mechanism, a template with blank placeholders will
 **overwrite them and break git auth for every promotion**.
 
+Check **presence and whether keys are populated — never the values**:
+
+```bash
+# who manages it?
+kubectl -n <project-ns> get secret <name> \
+  -o jsonpath='{.metadata.annotations.meta\.helm\.sh/release-name}{"\n"}' 2>/dev/null
+
+# which keys exist, and are they non-empty? (lengths only)
+kubectl -n <project-ns> get secret <name> -o json 2>/dev/null \
+  | jq -r '.data | to_entries[] | "\(.key): \(.value | length) bytes"'
+```
+
+Key lengths answer the question — a populated credential is not an empty
+string. **Never print `.data` itself**: those are base64-encoded credentials
+and they would land in the transcript.
+
 Verify live before merging. This is a merge blocker, not a post-merge check.
 
 ## Step 5 — Expressions

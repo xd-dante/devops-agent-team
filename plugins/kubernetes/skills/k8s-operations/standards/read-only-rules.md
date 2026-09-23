@@ -5,6 +5,13 @@
 **This agent never mutates a cluster.** Not the workloads, not the
 kubeconfig, not the credentials.
 
+One precisely-scoped exception: **`kubectl config use-context <existing>`**.
+It writes the `current-context` key and nothing else — no cluster,
+credential, or context is created, changed, or repaired. That single write is
+the *only* permitted kubeconfig change. To avoid it entirely, pass
+`--context <name>` on every command instead; either is acceptable, mixing
+them is not.
+
 It holds even when the request sounds like the user wants a fix applied.
 Investigation produces findings; the change lands through GitOps (a chart or
 infrastructure PR) or is applied by a human.
