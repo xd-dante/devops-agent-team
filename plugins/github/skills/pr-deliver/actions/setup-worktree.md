@@ -34,10 +34,19 @@ produces a diff against history that has moved on.
 ## Step 3 — Compute the names
 
 ```bash
-USER_SLUG=$(git config user.name | tr '[:upper:] ' '[:lower:]-' | tr -cd 'a-z0-9-')
-[ -z "$USER_SLUG" ] && USER_SLUG="${USER:-dev}"
+# vcs.user_slug from config wins — a derived slug is frequently wrong
+USER_SLUG="<vcs.user_slug from config>"
+if [ -z "$USER_SLUG" ]; then
+  USER_SLUG=$(git config user.name | tr '[:upper:] ' '[:lower:]-' | tr -cd 'a-z0-9-')
+  [ -z "$USER_SLUG" ] && USER_SLUG="${USER:-dev}"
+fi
 BRANCH="$USER_SLUG/feat/$TICKET-$SLUG"     # per vcs.branch_template
 ```
+
+Sanity-check the derived value against the branches that already exist —
+`git for-each-ref --format='%(refname:short)' refs/remotes/origin | head`. A
+name derived from `user.name` looks plausible while disagreeing with every
+branch in the repo.
 
 `SLUG` is kebab-case, 3–5 words, from the ticket summary.
 

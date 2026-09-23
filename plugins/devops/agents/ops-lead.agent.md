@@ -45,7 +45,7 @@ Never hardcode a hostname, account, cluster, or repo name. Resolve in order:
 
 1. **Memory** — `remember/actions/recall.md`: standing instructions and
    entries about this environment
-2. `.devops-agents.yml` at the project root
+2. `.devops-agents.yml` (found by walking up from cwd)
 3. Probe — `git rev-parse --verify --quiet origin/develop`,
    `kubectl config get-contexts -o name`, `terraform workspace list`
 4. Ask the user

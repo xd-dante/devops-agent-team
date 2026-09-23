@@ -13,6 +13,14 @@ tracker:
 
 vcs:
   host: github
+  # The {user} part. Deriving it from `git config user.name` is often wrong —
+  # check it against the branches already in the repo.
+  user_slug: example-user
+
+  # Set where the ambient git identity is unusable; passed per commit with
+  # `git -c user.name=... -c user.email=... commit`, never written to git config.
+  commit_author: "Example User <user@example.com>"
+
   # {user} {type} {ticket} {slug}
   branch_template: "{user}/{type}/{ticket}-{slug}"
   commit_style: scopeless                 # scopeless -> "feat: ..." | scoped -> "feat(api): ..."

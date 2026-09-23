@@ -50,6 +50,26 @@ git checkout -b <user>/<type>/<ticket>-<slug>
 Cherry-picking is for salvaging work you cannot easily reproduce — not for
 routine divergence.
 
+## Identity — check it before the first commit
+
+```bash
+git config user.name && git config user.email
+```
+
+An address that is not an address (a name in the `user.email` field) produces
+commits the forge cannot attribute, and they have to be rewritten. Where
+`vcs.commit_author` is configured, or the ambient identity is unusable, pass it
+per commit rather than editing someone's global config:
+
+```bash
+git -c user.name="<name>" -c user.email="<email>" commit ...
+```
+
+Then verify: `git log --format='%an <%ae>' -1`.
+
+Check the **effective** value from the directory you are committing in — a repo
+can carry a local override that the global config does not show.
+
 ## Commits
 
 `<type>: <subject>` — imperative, ≤72 chars. Types: `feat`, `fix`, `docs`,
