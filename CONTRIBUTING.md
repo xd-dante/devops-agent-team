@@ -3,6 +3,29 @@
 Contributions welcome — especially new domain agents, and corrections to the
 operational rules from people running them for real.
 
+## How to contribute
+
+`main` is protected: it takes pull requests only, and the `validate` check
+must pass. You do not need write access — fork and open a PR.
+
+```bash
+gh repo fork xd-dante/devops-agent-team --clone
+cd devops-agent-team
+git checkout -b <type>/<short-slug>
+# make the change
+python3 scripts/validate.py
+gh pr create --base main
+```
+
+A few things to expect:
+
+- **Workflows on a fork PR need a maintainer's approval** before they run —
+  that is deliberate, not a delay aimed at you
+- The workflow token is **read-only** and fork PRs get no repository secrets
+- Reviews are requested automatically via `CODEOWNERS`
+- History is linear and merges are squashed, so keep the branch rebased on
+  `main` rather than merging `main` into it
+
 ## Before you open a PR
 
 - Read [`docs/WRITING-AGENTS.md`](docs/WRITING-AGENTS.md) for the file
