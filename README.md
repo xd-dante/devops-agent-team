@@ -273,6 +273,18 @@ Full key reference and discovery rules: [`docs/CONFIGURATION.md`](docs/CONFIGURA
 That config file is gitignored here. Your hostnames, account ids and repo
 names are not this toolkit's business.
 
+## Companion tooling
+
+Nothing below is required — every agent works without it. But
+`codegraph-navigator` resolves call sites properly with a code-graph MCP
+server and falls back to grep without one, and these agents run a lot of
+`git diff` / `terraform plan` / `kubectl describe`, which is exactly the
+output [rtk](https://github.com/rtk-ai/rtk) compresses.
+
+See [`docs/COMPANIONS.md`](docs/COMPANIONS.md) — including why the `memory`
+plugin here and a code-indexing tool answer different questions, and the
+gotchas of running a directory marketplace off a live checkout.
+
 ## Docs
 
 | Doc | What it covers |
@@ -282,6 +294,7 @@ names are not this toolkit's business.
 | [`docs/WRITING-AGENTS.md`](docs/WRITING-AGENTS.md) | Adding an agent, a skill, or an action — with the file templates |
 | [`CLAUDE.md`](CLAUDE.md) | Instructions for Claude Code working in this repo — the generalisation rule above all |
 | [`memory/README.md`](memory/README.md) | The local memory directory: layout, setup, privacy |
+| [`docs/COMPANIONS.md`](docs/COMPANIONS.md) | Tooling the agents integrate with, and what makes them better |
 | [`CONTRIBUTING.md`](CONTRIBUTING.md) | Conventions, the review bar, and what not to commit |
 
 ## Status
