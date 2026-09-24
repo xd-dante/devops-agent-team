@@ -4,8 +4,8 @@
 
 `<type>: [<TICKET>] <2–5 words>` — configurable via `vcs.pr_title_template`.
 
-No leading verb, ~50 character ceiling. Same rule as ticket titles: the type
-carries the verb.
+No leading verb, ~50 character ceiling, **no trailing period**. Same rule as
+ticket titles: the type carries the verb.
 
 ```
 ✅  feat: [PROJ-412] Runner image pin

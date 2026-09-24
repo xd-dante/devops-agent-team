@@ -13,6 +13,8 @@
 - [ ] No AI or assistant attribution anywhere
 - [ ] No secrets, state files, `.env` or kubeconfig
 - [ ] Unrelated formatting churn reverted
+- [ ] Deletions audited with a **three-dot** diff (`origin/$BASE...HEAD`) —
+      every `-` line accounted for
 - [ ] Submodule pointer **excluded** from the parent commit
 
 ## Submodules

@@ -72,8 +72,21 @@ can carry a local override that the global config does not show.
 
 ## Commits
 
-`<type>: <subject>` — imperative, ≤72 chars. Types: `feat`, `fix`, `docs`,
-`refactor`, `chore`, `test`, `ci`.
+`<type>: <subject>` — imperative, ≤72 chars, **no trailing period**.
+
+| Type | For |
+|------|-----|
+| `feat` | A new capability |
+| `fix` | A bug fix |
+| `refactor` | Restructure, no behaviour change |
+| `perf` | Performance improvement |
+| `docs` | Documentation only |
+| `test` | Adding or fixing tests |
+| `ci` | Pipeline changes |
+| `chore` | Build, config, tooling, dependencies |
+| `style` | Formatting only, no logic change |
+
+`fixup` is not a type — use `fix` or `refactor`.
 
 **Scopeless by default.** `vcs.commit_style: scoped` opts into
 `<type>(<scope>): <subject>` where a project wants it. Some commit-lint
@@ -103,6 +116,19 @@ Where a repo's hooks generate files (docs regeneration, version bumping,
 lockfiles), those generated changes pollute the diff. Committing with
 `--no-verify` is legitimate there — say so in the report, and keep the
 generated files out of the commit.
+
+List those repos once, in `vcs.no_verify_repos`, rather than rediscovering
+them by having a commit polluted:
+
+```yaml
+vcs:
+  no_verify_repos:
+    - example-charts        # hooks regenerate READMEs and bump chart versions
+```
+
+Match the current repo against that list before committing. Skipping the hook
+is a deliberate, configured choice per repo — never a reflex when a hook
+fails for some other reason.
 
 ## Never commit
 
