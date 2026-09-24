@@ -3,9 +3,26 @@
 No organisation-specific value is hardcoded in this repo. Agents resolve
 facts in a fixed order:
 
-1. **`.devops-agents.yml`** at the project root, if present
+1. **`.devops-agents.yml`**, found by **walking up from the current directory**
+   (up to ~4 levels)
 2. **Runtime discovery** — probe the real system
 3. **Ask** — rather than assume
+
+```bash
+find_config() {
+  d=$(pwd)
+  for _ in 1 2 3 4; do
+    [ -f "$d/.devops-agents.yml" ] && { echo "$d/.devops-agents.yml"; return; }
+    d=$(dirname "$d")
+  done
+}
+```
+
+**Walk up — do not use `git rev-parse --show-toplevel`.** A workspace holding
+several sibling repositories is the common case, and the config belongs at the
+workspace root, one level *above* any repo. The toplevel of the repo you happen
+to be in will not find it, and the failure is silent: everything falls through
+to discovery and the config is simply ignored.
 
 ## The config file
 
@@ -30,6 +47,8 @@ between instances.
 
 | Key | Purpose | Discovery fallback |
 |-----|---------|--------------------|
+| `user_slug` | The `{user}` part of a branch name | Derived from `git config user.name` — **often wrong**, see below |
+| `commit_author` | `Name <email>` passed per commit | Ambient git config |
 | `branch_template` | Branch naming | `{user}/{type}/{ticket}-{slug}` |
 | `commit_style` | `scopeless` \| `scoped` | `scopeless` |
 | `pr_title_template` | PR title shape | `{type}: [{ticket}] {summary}` |
@@ -48,6 +67,24 @@ They deliberately do **not** trust `origin/HEAD` or
 for repos where the integration branch is not the advertised default — a
 failure mode that silently targets PRs at the wrong branch. Where the probe
 is still wrong, list the repo in `base_branch_overrides`.
+
+**On `user_slug`.** Deriving it from `git config user.name` produces whatever
+that field says — `"Jane Smith"` becomes `jane-smith`, while the branches
+actually in the repo may all use `jsmith`. The derived value looks plausible and
+is wrong, so set it explicitly where the two differ.
+
+**On `commit_author`.** Where the ambient git identity is unusable — a
+`user.email` that is not an address, or a personal address that should not
+appear in a work repo — set this and pass it per commit rather than editing
+someone's global config:
+
+```bash
+git -c user.name="<name>" -c user.email="<email>" commit ...
+```
+
+Verify with `git log --format='%an <%ae>' -1` after the first commit of a
+session. A commit authored with a broken identity is not attributable and has
+to be rewritten.
 
 ### `repos`
 

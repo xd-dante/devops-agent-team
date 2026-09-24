@@ -40,6 +40,22 @@ exist on the submodule's base yet.
 
 Revert unrelated formatter churn before staging.
 
+Then **audit what the change removes**, against the merge base:
+
+```bash
+git fetch origin "$BASE"
+git diff "origin/$BASE...HEAD" --numstat | awk '$2>0'   # files with removals
+git diff "origin/$BASE...HEAD"                          # read every '-' line
+```
+
+Three dots, against the merge base. A two-dot diff mixes in the base's newer
+commits, which hides real losses among unrelated noise.
+
+This catches the failure where a file was rewritten wholesale from a copy read
+somewhere else and silently dropped keys nobody meant to remove. Edit in
+place, and if a deletion is not part of the intended change, find out why
+before pushing.
+
 ## Step 4 — Commit
 
 ```bash
@@ -90,4 +106,6 @@ Ticket:       <ticket url>
 | Committing the submodule pointer | Submodule ships its own branch and PR |
 | A second PR for the same branch | Update the existing one |
 | Reporting the push as done | Check CI first |
+| Not reading the `-` lines | A wholesale rewrite drops keys silently |
+| Two-dot diff to audit removals | Three dots, against the merge base |
 | A PR mentioned without its URL | Link inline, every time |

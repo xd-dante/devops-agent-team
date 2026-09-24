@@ -1,6 +1,6 @@
 # Ticket Conventions
 
-## Titles — 2–5 words, no leading verb, ~50 char ceiling
+## Titles — 2–5 words, no leading verb, ~50 char ceiling, no trailing period
 
 A title names the subject. The issue type carries the verb.
 
