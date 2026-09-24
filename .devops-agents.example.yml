@@ -52,7 +52,11 @@ environments:
 
 observability:
   provider: newrelic                      # newrelic | none
-  region: US                              # US | EU — wrong region returns an EMPTY account, not an error
+  # US | EU. A wrong region returns an EMPTY account, not an error — and OAuth
+  # against the wrong regional MCP endpoint can succeed while authorising an
+  # account holding none of your data. Keep this in step with NEWRELIC_MCP_URL
+  # in your settings.json env block.
+  region: US
   account_id: "1234567"
   api_key_env: NEW_RELIC_API_KEY          # the key itself lives in the environment, never here
 
