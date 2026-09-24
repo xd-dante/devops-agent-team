@@ -19,8 +19,15 @@
 | EU | `https://api.eu.newrelic.com/graphql` | `https://mcp.eu.newrelic.com/mcp/` |
 
 **A wrong region returns an empty account, not an error** — which is
-indistinguishable from "nothing is wrong". Confirm the region resolves to a
-real account before reporting anything:
+indistinguishable from "nothing is wrong".
+
+This applies to the MCP server too: OAuth against the wrong regional endpoint
+can complete successfully while authorising an account that holds none of your
+data. **A connected server is not evidence the region is right.** The MCP URL
+comes from `NEWRELIC_MCP_URL` (default US); keep it and
+`observability.region` in agreement.
+
+Confirm the region resolves to a real account before reporting anything:
 
 ```bash
 : "${NEW_RELIC_API_KEY:?export your user key first}"
