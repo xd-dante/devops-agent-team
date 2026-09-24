@@ -39,6 +39,19 @@ branch, creates the worktree, and installs dependencies.
 Require back: the absolute worktree path and the branch name. Every later
 handoff carries that path — the main checkout stays untouched.
 
+## Step 3b — Orient, if the repo is unfamiliar (optional)
+
+For application code in a repo nobody has a profile for,
+`HANDOFF → codegraph-navigator` with `actions/profile-repo.md`, then
+`actions/index-repo.md`. It saves the profile to memory, so the next ticket in
+that repo skips this step.
+
+**Skip for config-only repos** — Terraform, charts, manifests. A call graph
+adds nothing there and the domain agent already knows the value paths.
+
+Before editing anything shared, `actions/impact-radius.md` — before the edit,
+not after review finds something.
+
 ## Step 4 — Implement (domain specialists)
 
 Route each piece of work via `standards/routing-table.md`. Every brief

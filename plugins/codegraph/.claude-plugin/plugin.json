@@ -1,0 +1,9 @@
+{
+  "name": "codegraph",
+  "description": "Structural code lookup — index a repo, profile it, trace impact before editing",
+  "version": "1.0.0",
+  "author": {
+    "name": "Pratik Makwana",
+    "url": "https://github.com/xd-dante"
+  }
+}
