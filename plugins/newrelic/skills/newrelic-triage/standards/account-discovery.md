@@ -26,13 +26,15 @@ can complete successfully while authorising an account that holds none of your
 data. **A connected server is not evidence the region is right** — confirm the
 account before trusting any result.
 
-This plugin ships no MCP server. It is registered by the user at user scope
-per New Relic's own setup instructions, so the endpoint is their choice, not
-this plugin's. The first-party hosts are `mcp.newrelic.com`,
-`mcp.eu.newrelic.com` and `mcp.jp.newrelic.com`; if the connected server is
-anywhere else, **stop and report it** rather than querying — that endpoint
-holds an OAuth token, and a token already sent cannot be unsent. Enforcement
-belongs in `allowedMcpServers` in managed settings, not in this skill.
+The MCP URL comes from `NEWRELIC_MCP_URL` (default US); keep it and
+`observability.region` in agreement.
+
+That variable also decides where the OAuth token is sent. The first-party
+hosts are `mcp.newrelic.com`, `mcp.eu.newrelic.com` and
+`mcp.jp.newrelic.com`; if the connected server is anywhere else, **stop and
+report it** rather than querying — that endpoint holds an OAuth token, and a
+token already sent cannot be unsent. Enforcement belongs in
+`allowedMcpServers` in managed settings, not in this skill.
 
 Confirm the region resolves to a real account before reporting anything:
 

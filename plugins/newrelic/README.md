@@ -2,36 +2,48 @@
 
 Daily observability triage: is anything actually wrong, and what needs a human.
 
-## The MCP server is not bundled — register it yourself
+## The MCP server is bundled
 
-This plugin deliberately ships **no `.mcp.json`**. New Relic's documented
-Claude Code setup registers the server in `~/.claude.json`, at user scope, and
-their docs do not use `.mcp.json` at all.
-
-A plugin-bundled server is also injected at a dynamic scope with no persisted
-config entry, and OAuth credentials do not survive a reconnect there: login
-succeeds, then the next connection is rejected. Registering it yourself avoids
-that entirely.
-
-Follow New Relic's own instructions:
+This plugin ships an `.mcp.json` pointing at the hosted MCP server. Set
+`NEWRELIC_MCP_URL` if your organisation is not in the default region (see
+[Region](#region)), then authenticate once:
 
 ```bash
-# pick the endpoint for YOUR region (see below)
-claude mcp add --scope user --transport http newrelic https://mcp.newrelic.com/mcp/
-claude mcp login newrelic
+claude mcp login plugin:newrelic:newrelic
 ```
 
-`--scope user` matters: without it the server is written to project-local
-config and is invisible from any other directory, so `claude mcp login` will
-report that no such server exists.
+Tools appear in the **next** session, not the current one — the client binds
+its servers at startup.
 
-If a login ever starts failing on reconnect, clear the stored credential
-before retrying — a credential written by an older storage format lacks the
-issuer field and is rejected on every subsequent connection:
+## "Rejected them on reconnect" is a permission error, not an auth error
 
-```bash
-claude mcp logout newrelic && claude mcp login newrelic
-```
+Claude Code reports a **403** from the MCP server as *"Got new credentials, but
+&lt;server&gt; rejected them on reconnect"*. That wording points at a stale or
+broken credential and will send you re-registering the server at other scopes.
+It is neither of those.
+
+Tell the two apart **before changing any configuration** — present the stored
+token yourself and read the status code:
+
+- **403** `Missing required capabilities to access MCP server` → OAuth
+  succeeded; the user lacks permission. Nothing in this plugin, and nothing in
+  Claude Code, can fix it.
+- **401** → a real authentication problem.
+
+The MCP server permission (`New Relic MCP Server`, READ) is
+**organisation-scoped**. Account-level administrator access — however broad —
+never grants it. An administrator must give a group the user belongs to an
+**organisation-scoped** role containing that permission: the built-in
+read-only organisation role carries it, or they can create a custom
+organisation-scoped role holding only that one permission, which grants no
+administrative capability.
+
+Enabling the feature org-wide in the provider's feature-control screen is a
+**separate layer** and does not authorise an individual user. Both are needed,
+so a screenshot showing the feature enabled does not rule the permission out.
+
+NerdGraph does not check this permission, so the agent's queries keep working
+over the API while a grant is pending.
 
 ## Region
 
