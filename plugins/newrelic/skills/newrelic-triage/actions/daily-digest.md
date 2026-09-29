@@ -6,6 +6,11 @@ Answered in a few lines, in under a minute.
 Optimised for being read every morning: verdict first, exceptions only,
 nothing you already know.
 
+> **For the routine daily run, use `/newrelic:daily`.** It groups incidents
+> inside the NRQL query and gets the baseline from `COMPARE WITH`, so four
+> queries answer the whole question. The steps below are the longer manual
+> form — reach for them for an ad-hoc question or when you need a raw payload.
+
 ## Step 0 — Prove the account
 
 Per `standards/account-discovery.md`. Set up the `nr` helper, confirm the
