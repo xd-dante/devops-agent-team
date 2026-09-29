@@ -6,6 +6,13 @@ Answered in a few lines, in under a minute.
 Optimised for being read every morning: verdict first, exceptions only,
 nothing you already know.
 
+> **For the routine daily run, use `/newrelic:daily`.** It shells out to
+> `scripts/nr-daily.py`, which does the whole sweep in four batched queries
+> inside one process and prints a graded digest. The steps below are the
+> manual equivalent — reach for them for an ad-hoc question, a region the
+> script does not cover, or when you need to see a raw payload. Running them
+> as six separate tool calls costs far more context for the same answer.
+
 ## Step 0 — Prove the account
 
 Per `standards/account-discovery.md`. Set up the `nr` helper, confirm the

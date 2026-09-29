@@ -4,7 +4,7 @@
 
 | Value | Source | Fallback |
 |-------|--------|----------|
-| Account id | `observability.account_id` | `actor { accounts { id name } }` — ask if more than one |
+| Account ids | `observability.accounts` (alias → id) | `actor { accounts { id name } }`. Production and non-production are frequently **separate accounts** — one id is usually an incomplete picture, so confirm rather than assume the first |
 | Region | `observability.region` (`US`/`EU`) | Ask. **Do not guess** |
 | User key | `$NEW_RELIC_API_KEY` (name from `observability.api_key_env`) | Stop and ask the user to export it |
 | Critical services | `observability.critical_services` | Entity search, then ask which matter |

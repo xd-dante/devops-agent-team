@@ -20,7 +20,7 @@ report them.
 
 | Capability | Action | Description |
 |------------|--------|-------------|
-| Daily Digest | `actions/daily-digest.md` | The default run: issues, entity health, golden signals, dashboard spot-check, recent deploys → one verdict |
+| Daily Digest | `/newrelic:daily` → `scripts/nr-daily.py` | The default run: issues, entity health, golden signals → one graded verdict, four batched queries. `actions/daily-digest.md` is the manual equivalent |
 | Alert Review | `actions/alert-review.md` | Periodic audit: disabled conditions, conditions that can never fire, uncovered services, policies that notify nobody |
 | Entity Health | `actions/entity-health.md` | Golden signals for one service, with the deploy timeline |
 | Dashboard Review | `actions/dashboard-review.md` | Broken and misleading widgets; coverage gaps |

@@ -57,8 +57,21 @@ observability:
   # an account holding none of your data. Keep this in step with
   # NEWRELIC_MCP_URL in your settings.json env block.
   region: US
-  account_id: "1234567"
   api_key_env: NEW_RELIC_API_KEY          # the key itself lives in the environment, never here
+
+  # Alias -> account id. Production and non-production often live in SEPARATE
+  # accounts, so the daily check needs both. An alias starting "prod" is
+  # weighted as production: its findings are act-now, everything else grades
+  # one level lower.
+  accounts:
+    prod: "1234567"
+    nonprod: "7654321"
+
+  # Alert-condition names that are known noise. The daily digest skips them and
+  # reports HOW MANY it skipped, so suppression stays visible rather than
+  # silently hiding a real regression.
+  suppress:
+    - Service Levels default alert condition
 
   # Services the daily digest treats as critical. Anything alerting here is
   # act-now; anything here with no alert condition is a coverage gap.
