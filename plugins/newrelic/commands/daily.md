@@ -30,13 +30,28 @@ check.
 ```bash
 python3 "${CLAUDE_PLUGIN_ROOT}/scripts/nr-daily.py" \
   --region "$REGION" \
-  --account prod=<id> --account nonprod=<id> \
+  --account <prod-id> --account <nonprod-id> \
+  --prod-account <prod-id> \
   --hours "${1:-1}" \
   --suppress '<condition name>'
 ```
 
+Five requests, aggregated server-side: incidents grouped by alert condition in
+one cross-account NRQL, a suppression count, golden signals per account with
+`COMPARE WITH` so the baseline costs no extra round trip, and an entity search
+for anything that stopped reporting.
+
 Exit `2` means a check could not run. Then the verdict is **could not
 verify** — never "all clear".
+
+Two query facts worth not rediscovering:
+
+- **`NrAiIncident`, not `aiIssues`.** Issues *group* incidents, so a digest
+  built on issues under-reports badly — one issue hid 100 incidents across 100
+  entities on this estate.
+- **`account.id` is NULL on `Transaction` facets**, so golden signals are
+  queried per account. A cross-account version returns no regressions at all
+  rather than unattributed ones, which reads as "nothing wrong".
 
 ## Step 3 — Route, don't just relay
 
