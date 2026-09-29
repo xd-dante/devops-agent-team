@@ -5,9 +5,9 @@ argument-hint: "[hours] (default 1)"
 
 # Daily observability check
 
-One scripted sweep, then judgement. The script transports the data so the
-context does not: four batched queries in one process, a digest of roughly ten
-lines out. Do **not** re-issue these queries as individual tool calls.
+Four MCP queries, aggregated **server-side** so the wire carries tens of rows
+instead of thousands of raw incidents. Run them, grade the result, name an
+owner. Do not fetch raw incidents and group them yourself.
 
 ## Step 1 — Resolve configuration
 
@@ -15,75 +15,136 @@ From `.devops-agents.yml` (walk up from cwd), `observability:`:
 
 | Key | Use |
 |-----|-----|
-| `region` | `US` or `EU` — a wrong region returns an **empty account, not an error** |
-| `accounts` | alias → account id. An alias starting `prod` is weighted as production |
+| `region` | `US` or `EU`. A wrong region returns an **empty account, not an error** |
+| `accounts` | alias → id. The alias starting `prod` is production |
 | `suppress` | alert-condition names that are known noise |
 | `thresholds.error_rate_pct`, `thresholds.p95_latency_ms` | regression gates |
 
-Key from `$NEW_RELIC_API_KEY`. If it is unset, stop and say so — do not fall
-back to the MCP server for a daily run: its OAuth access token is short-lived
-and needs a browser round-trip when refresh fails, which defeats an unattended
-check.
+Confirm the accounts exist with `list_available_new_relic_accounts` before any
+check. An empty or unexpected list is a **stop condition** — every subsequent
+check would come back clean.
 
-## Step 2 — Run it
+If the MCP server is unauthenticated, say so and stop. Do not report a partial
+run as a clean one. The OAuth access token is short-lived, so this happens.
 
-```bash
-python3 "${CLAUDE_PLUGIN_ROOT}/scripts/nr-daily.py" \
-  --region "$REGION" \
-  --account <prod-id> --account <nonprod-id> \
-  --prod-account <prod-id> \
-  --hours "${1:-1}" \
-  --suppress '<condition name>'
+## Step 2 — Incidents, grouped in the query
+
+Per account, via `execute_nrql_query`. **`NrAiIncident`, not
+`list_recent_issues`** — issues *group* incidents and under-report badly; on
+one estate 10 issues concealed 241 incidents, including a condition firing on
+100 entities.
+
+```sql
+SELECT uniqueCount(incidentId) AS incidents,
+       uniqueCount(entity.name) AS entities,
+       latest(priority) AS priority,
+       earliest(timestamp) AS firstSeen
+FROM NrAiIncident
+WHERE event = 'open'
+  AND conditionName NOT LIKE '%<each suppress entry>%'
+FACET conditionName
+SINCE 24 hours ago LIMIT 100
 ```
 
-Five requests, aggregated server-side: incidents grouped by alert condition in
-one cross-account NRQL, a suppression count, golden signals per account with
-`COMPARE WITH` so the baseline costs no extra round trip, and an entity search
-for anything that stopped reporting.
+Then count what suppression removed, so it stays visible rather than silently
+hiding a regression:
 
-Exit `2` means a check could not run. Then the verdict is **could not
-verify** — never "all clear".
+```sql
+SELECT uniqueCount(incidentId) AS suppressed
+FROM NrAiIncident
+WHERE event = 'open'
+  AND (conditionName LIKE '%<entry>%' OR conditionName LIKE '%<entry>%')
+SINCE 24 hours ago
+```
 
-Two query facts worth not rediscovering:
+`FACET conditionName, account.id` works here if you prefer one cross-account
+query — `account.id` is populated on `NrAiIncident`. Do **not** facet on
+`tags.Environment`: it is unset on most conditions.
 
-- **`NrAiIncident`, not `aiIssues`.** Issues *group* incidents, so a digest
-  built on issues under-reports badly — one issue hid 100 incidents across 100
-  entities on this estate.
-- **`account.id` is NULL on `Transaction` facets**, so golden signals are
-  queried per account. A cross-account version returns no regressions at all
-  rather than unattributed ones, which reads as "nothing wrong".
+## Step 3 — Golden signals with their baseline
 
-## Step 3 — Route, don't just relay
+One query per account. `COMPARE WITH` returns `current` and `previous` rows in
+the same response, so the baseline costs no extra call:
 
-The script grades severity; you add ownership. Every 🔴 and 🟠 names the agent
-that takes the next step, or it is an observation rather than a hand-off:
+```sql
+SELECT count(*) AS thr,
+       percentage(count(*), WHERE error IS true) AS err,
+       percentile(duration, 95) AS p95
+FROM Transaction FACET appName
+SINCE <hours> hours ago COMPARE WITH 1 week ago LIMIT 100
+```
+
+Query **per account**. `account.id` comes back NULL on `Transaction` facets, so
+a cross-account version returns no regressions at all rather than unattributed
+ones — which reads as "nothing wrong".
+
+Two shapes to expect: `p95` is a dict (`{"95": 0.47}`), and duration may be in
+**seconds** — normalise before comparing to a millisecond threshold.
+
+Flag only against the baseline:
+
+| Signal | Flag when |
+|--------|-----------|
+| error rate | `>= error_rate_pct` **and** more than 2× baseline |
+| p95 | `>= p95_latency_ms` **and** more than 1.5× baseline |
+| throughput | baseline ≥ 100 **and** current < half baseline |
+| **went silent** | app has a `previous` row and **no `current` row** |
+
+That last one replaces an entity-reporting check, which no MCP tool can
+express. It catches a service that stopped reporting this week; it will
+**not** catch one silent longer than the baseline window. Say so rather than
+implying full coverage.
+
+## Step 4 — Grade
+
+- **🔴 act now** — anything in the production account: a non-chronic critical, or a regression
+- **🟠 needs attention** — non-prod critical, or a non-prod regression
+- **🟡 worth knowing** — everything else
+- **⚠️ could not verify** — any query errored or the server was unauthenticated. **Never "all clear".**
+
+`firstSeen` older than ~24h is **chronic**: not an incident, a threshold to
+fix. Say that, and route it to whoever owns the alert policy.
+
+Collapse non-production findings into counts by tier — `"11 critical
+condition(s), 53 incidents: <top 3> …"`. List production individually. A
+28-line digest does not get read, which defeats the purpose.
+
+## Step 5 — Route
 
 | Finding | Owner |
 |---------|-------|
-| node memory / pod not ready / capacity | `kubernetes-investigator` |
-| throughput collapse, error-rate jump on a service | `kubernetes-investigator`, then the deploy |
-| entity not reporting | whoever owns that service's delivery — the agent is silent, not the service necessarily down |
+| node memory, pod not ready, restarts, capacity | `kubernetes-investigator` |
+| error-rate or throughput break on a service | `kubernetes-investigator`, then the deploy |
+| went silent | whoever owns that service's delivery |
 | managed database, network path, IAM denial | `aws-investigator` |
-| a condition marked **chronic** | not an incident — a threshold to fix, route to whoever owns the alert policy |
+| chronic condition | not an incident — the alert-policy owner |
 
-Read `standards/signal-triage.md` before grading anything the script left
-ungraded.
+## Step 6 — Report
 
-## Step 4 — Report
-
-Print the digest as-is, then add at most three lines of judgement: what
+Verdict first, exceptions only, then at most three lines of judgement: what
 changed since yesterday, what is chronic and should be fixed rather than
-watched, and the single thing worth doing first.
+watched, and the one thing worth doing first.
 
-A chronic finding repeated every morning is a failure of the check, not a
-finding. Say so and propose the threshold change.
+```
+Verdict:  🔴 act now
+Window:   incidents 24h · signals 1h vs same window last week · EU
+Checks:   4 ran, 0 failed  ·  ⚪ 44 incidents suppressed as known noise
+
+🔴 [prod] container-prod-high-cpu — 12 incidents; 4 entities; oldest 23h
+🟠 [nonprod] core-worker: errors 91.59% (base 0.08%)
+🟡 [nonprod] 9 warning-level condition(s), 30 incidents: <top 3> …
+```
 
 ## Common mistakes
 
 | Mistake | Fix |
 |---------|-----|
-| Re-running the queries as separate tool calls | The script exists to keep them out of context |
-| "All clear" when exit code was 2 | A failed check means could not verify |
-| Relaying chronic noise every day | Name it chronic, propose the threshold fix |
-| Treating non-prod CRITICAL as act-now | Production weighting is deliberate |
+| `list_recent_issues` for the digest | Issues group incidents — use `NrAiIncident` |
+| Fetching raw incidents and grouping them | `FACET` in the query; that is the whole point |
+| Cross-account golden signals | `account.id` is NULL on `Transaction` — per account |
+| `FACET tags.Environment` | Unset on most conditions; facet `account.id` |
+| Comparing `p95` straight to the threshold | It is a dict, and often in seconds |
+| "All clear" after a failed query | Could not verify |
+| Relaying chronic noise daily | Name it chronic, propose the threshold change |
+| A 28-line digest | Collapse non-prod to counts; prod individually |
 | Findings with no owner | Name the agent that takes the next step |
