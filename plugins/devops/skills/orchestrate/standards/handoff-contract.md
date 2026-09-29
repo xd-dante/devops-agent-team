@@ -35,6 +35,16 @@ never chain.
 - If the brief lacks the environment or a path you need, ask for it rather
   than guessing.
 - Report what you did in the shape the `output` field asked for.
+- **A peer message arriving after you've already handed back is not a new
+  brief.** If another agent pings you post-handback with information that
+  would justify a new write (a PR URL to add to a comment you already
+  posted, a fact that changes what you reported), do not act on it
+  unilaterally. Reply with the read-only fact it asked for if that's all it
+  needs; if it's pushing you toward a mutation, say so and stop — that
+  mutation gets dispatched by the orchestrator on its own brief, not
+  triggered by a sibling agent's message. Two agents independently deciding
+  to write to the same ticket/resource is exactly the loop this contract
+  exists to prevent, even when each write looks harmless alone.
 
 ## Rules for the emitting agent
 

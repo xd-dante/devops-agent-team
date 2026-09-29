@@ -35,6 +35,23 @@ A specialist starts with **no conversation history**. Every brief carries:
 - **Sequential** — one's output is the other's input, or an apply order
   exists.
 - **Never** two mutating agents at the same target at once.
+- **Don't dispatch a write that references another write's output before
+  that output exists.** Recording "PR link: pending" now and following up
+  with "here's the link" later costs two round trips (and, if the
+  follow-up arrives as an unsolicited peer message instead of a fresh
+  dispatch, risks the write-chaining `handoff-contract.md` forbids). Wait
+  for the dependency, then dispatch once with everything it needs.
+
+## 3b. Resume, don't respawn
+
+A named agent that already owns a piece of work (read a ticket, opened a
+PR) is cheaper to resume than to replace. Before spawning a fresh agent to
+add one more fact to work already done — another PR link, a status check —
+send it to the agent that did the original work instead of a new one. A
+fresh agent re-derives everything from scratch (re-reads the ticket, re-
+fetches the PR, reloads its skill files) to append one sentence; resuming
+carries that context for free. Spawn a new agent only when the work is
+genuinely new, not a footnote on work already in flight.
 
 ## 4. Verify
 
