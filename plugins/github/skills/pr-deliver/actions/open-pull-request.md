@@ -68,11 +68,19 @@ report and keep generated files out of the commit.
 
 ## Step 5 — Push and open or update
 
+Write the body to a temp file first — composing it inline in a heredoc is
+how manual line-wrapping sneaks in (see `standards/pr-conventions.md` §"No
+manual line-wrapping"). Each paragraph is one unbroken line in that file.
+
 ```bash
 git push -u origin "$(git branch --show-current)"
 gh pr view --json number,url,headRefName 2>/dev/null   # existing PR?
 gh pr create --base "$BASE" --title "<type>: [<TICKET>] <2–5 words>" --body-file <file>
 ```
+
+Follow the fixed What/Why/How/Test-plan template in
+`standards/pr-conventions.md` — do not freelance a different section
+layout per PR.
 
 Existing PR → update the body rather than opening a second one, and address
 any open review comments (`actions/review-comments.md`) before reporting.

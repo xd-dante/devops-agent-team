@@ -15,14 +15,55 @@ ticket titles: the type carries the verb.
 
 ## Body
 
-- What changed and why, briefly
-- **Apply or merge order** across repos, when one exists
-- Live-verification notes where something was checked against a real
-  environment
-- Footer linking the ticket
+Fixed template — fill every section, omit `Test plan` only if there is
+genuinely nothing to check:
 
-Rationale that does not belong in a code comment belongs here. This is where
-the reasoning for a change lives — not in the files.
+```markdown
+## What
+<Feature/behavior-level description: components introduced, integrations,
+scope boundaries, what's intentionally out of scope. Reviewers read this
+first.>
+
+## Why
+<Motivation. Reference the spec/ticket/incident. The problem this solves and
+the constraint that shaped the approach.>
+
+## How
+<Architectural/behavioral summary only. 2–5 short bullets: key design
+decisions, non-obvious trade-offs, apply/merge order across repos when one
+exists. Not a per-file inventory — the diff shows that.>
+
+## Test plan
+- [ ] <what to verify>
+- [ ] <edge case to check>
+
+Ticket: <ticket url>
+```
+
+Rationale that does not belong in a code comment belongs here — not in the
+files. Omit the whole `Ticket:` line for changes with no ticket in scope.
+Exactly one ticket per PR: one link in the title, one `Ticket:` line in the
+body.
+
+### No manual line-wrapping
+
+Write every paragraph as **one unbroken source line**, however long. Do not
+wrap prose at a fixed column (~70–80 chars) the way a terminal or editor
+would — GitHub renders a bare `\n` inside a paragraph as a hard line break,
+not a soft wrap, so manually-wrapped prose renders as a jagged, uneven right
+margin instead of a normal flowing paragraph. A blank line is the only
+paragraph break; inside a paragraph, no newline at all.
+
+This bites most often when the body is composed inside a bash heredoc —
+generating the text with a self-imposed wrap column produces literal `\n`
+bytes in the file. Compose each paragraph as a single line before it goes
+into the heredoc, and write the body to a temp file for `--body-file`
+instead of an inline `--body "$(cat <<'EOF' ... )"` if that makes it easier
+to avoid accidental wrapping.
+
+Exactly one blank line between sections and list items — never two. Do not
+leave a trailing blank line before the closing `Ticket:` line or at the end
+of the file.
 
 ## Target
 
