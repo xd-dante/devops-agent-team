@@ -212,14 +212,32 @@ def check_rigs() -> None:
             if kind not in {"delegates_to", "can_observe", "escalates_to"}:
                 warnings.append(f"{rel}: unknown edge kind {kind!r}")
 
-        # a seat that can mutate should not exist while the gates are only prose
-        gate_hooks = list(ROOT.glob("plugins/*/hooks/*.json"))
-        for name in sorted(refs):
-            klass = access.get(name)
-            if klass in {"gated", "mutating"} and name != "ops-lead" and not gate_hooks:
-                warnings.append(
-                    f"{rel}: seat {name!r} is {klass} but no gate hooks exist yet — "
-                    f"a managed seat runs with acceptEdits, which prose boundaries do not survive")
+
+
+
+REQUIRED_LIMITS = [
+    ("force-push protected branches", "Force-push, or push to `main`, `master`, or `develop`"),
+    ("terraform destroy", "Run `terraform destroy`, in any environment"),
+    ("self-widening permissions", "Widen your own permissions"),
+    ("unrelated changes in a plan", "touches resources\n  outside the task"),
+]
+
+
+def check_safety_limits() -> None:
+    """Every agent carries the universal limits verbatim.
+
+    A limit worded differently in twelve places is twelve limits, and the
+    difference is invisible until one of them is the lenient one.
+    """
+    for agent in sorted(ROOT.glob("plugins/*/agents/*.agent.md")):
+        text = agent.read_text(encoding="utf-8")
+        rel = agent.relative_to(ROOT)
+        if "## Boundaries" not in text:
+            errors.append(f"{rel}: no Boundaries section")
+            continue
+        for label, needle in REQUIRED_LIMITS:
+            if needle not in text:
+                errors.append(f"{rel}: missing universal limit ({label})")
 
 
 def main() -> int:
@@ -233,6 +251,7 @@ def main() -> int:
         check_forbidden,
     ):
         check()
+    check_safety_limits()
     check_openrig_projection()
     check_rigs()
 

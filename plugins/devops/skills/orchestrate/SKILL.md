@@ -34,6 +34,7 @@ have applied.
 | Delegation Protocol | `standards/delegation-protocol.md` | Briefing, parallelism, verification, escalation |
 | Handoff Contract | `standards/handoff-contract.md` | Agent-to-agent messages; reads go sideways, writes do not |
 | Report Format | `standards/report-format.md` | The one consolidated report shape |
+| Safety Limits | `standards/safety-limits.md` | The four limits every agent carries verbatim, and why enforcement lives outside them |
 | Checklist | `standards/checklist.md` | Pre-completion checks |
 
 ## Principles

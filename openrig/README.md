@@ -27,42 +27,30 @@ Read off each agent's own `description`, never hardcoded:
 | `gated` | read-only apart from one gated mutation | ❌ waiting on hook-enforced gates |
 | `mutating` | changes files, repos or infrastructure | ❌ waiting on hook-enforced gates |
 
-## The mutation gate
+## Limits on a mutating seat
 
-`plugins/devops/hooks/gate.py` runs on `PreToolUse` for `Bash` and decides
-without a human present. That is the point: an unattended seat has nobody at
-its terminal to answer a permission prompt, so a prompt either stalls the seat
-or gets allowlisted away.
+Agents edit files freely — that is the work, and `acceptEdits` only
+auto-accepts edits. What they must not do lives in each agent's **Boundaries**
+section, with four limits carried verbatim by all of them
+(`devops/orchestrate/standards/safety-limits.md`): no force-push or push to a
+protected branch, no `terraform destroy`, no widening their own permissions,
+and **cancel any change whose plan touches resources outside the task**.
 
-**File edits are untouched.** Writing Terraform, charts and code is the work.
-The gate refuses a narrow set of commands:
+`scripts/validate.py` fails if an agent is missing one, so the wording cannot
+drift into a lenient variant.
 
-| Refused | Why |
-|---------|-----|
-| `terraform apply`/`plan` without `-target`, any `destroy`, `state rm/mv/push` | blast radius beyond the change; state surgery is not reversible from here |
-| `kubectl` mutations, `exec`, `port-forward`, `rollout restart` | desired state lives in git |
-| force-push, push to `develop`/`main`/`master`, remote branch deletion | protected history |
-| `argocd app sync`, `kargo promote` | gated single-target actions |
-| `--dangerously-skip-permissions`, `--permission-mode bypassPermissions`, `danger-full-access`, `-a never`, `--dangerously-bypass-approvals-and-sandbox` | removes tool-permission checks for the rest of the session |
-| a write whose **target** is a settings file, `hooks.json` or `gate.py` | an agent must not change what it is allowed to do; reading them is fine |
+**These are instructions, not enforcement.** An agent follows them because it
+read them. Two mechanisms outside the agent compose with this and are worth
+having before running unattended seats against anything that matters:
 
-Every denial names the escalation path, so a blocked seat reports upward rather
-than stalling.
+| Mechanism | Covers |
+|-----------|--------|
+| `permissions.deny` in Claude Code settings | absolute prohibitions — `terraform destroy`, force-push, `kubectl delete`. A permission mode cannot override a deny rule |
+| Cloud IAM roles | the real boundary. A read-only role for an investigating seat cannot be argued around, and costs it nothing it needs |
 
-Protected-branch matching parses the **refspec**, not the command string: a
-`\b` boundary treats `-` and `/` as word edges, so `feat/main-nav` and
-`develop-fix` look like protected branches to a naive regex. They are pushable;
-`tests/test_gate.py` covers them.
-
-Run the tests — both directions, because a gate that denies everything is as
-useless as none:
-
-```bash
-python3 tests/test_gate.py    # 19 allow, 25 deny, 4 non-Bash
-```
-
-`scripts/validate.py` warns if a rig contains a `gated` or `mutating` seat while
-no plugin ships gate hooks.
+Worth checking your own posture first: `Bash(*)` in `permissions.allow` with an
+empty `deny` list means nothing prompts you interactively either, so a seat is
+not a new exposure so much as an unsupervised one.
 
 ## What OpenRig writes to your machine
 

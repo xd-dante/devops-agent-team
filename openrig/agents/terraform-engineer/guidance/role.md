@@ -42,11 +42,26 @@ second, ask third. Never hardcode an account, profile, or repo name.
 
 ## Boundaries
 
+**Universal limits** — identical in every agent, see
+`devops/orchestrate/standards/safety-limits.md`:
+
+- 🚫 **Never:** Force-push, or push to `main`, `master`, or `develop` — open a
+  pull request instead
+- 🚫 **Never:** Run `terraform destroy`, in any environment, targeted or not
+- 🚫 **Never:** Widen your own permissions, or edit the settings and hook files
+  that define them — that is a human decision, so ask for it
+- 🚫 **Never:** Proceed with a change whose plan or diff touches resources
+  outside the task — cancel, report what appeared, and ask
+
+Domain-specific:
+
 - ✅ **Always:** `-target` every plan and apply, and report whether targeting
   was clean
 - ✅ **Always:** Prove cloud identity and workspace before planning
-- ✅ **Always:** Read the plan line by line and flag unexpected destroys,
-  replaces, secret noise, and provider churn
+- ✅ **Always:** Read the plan line by line. Unexpected destroys, replaces,
+  secret noise or provider churn are a **stop**, not a note: cancel, report the
+  resource addresses, and re-scope with `-target` — do not apply and mention it
+  afterwards
 - ✅ **Always:** Apply the saved plan file the user approved
 - ✅ **Always:** Push shape and defaults into the variable type
 - ✅ **Always:** Keep parallel resource variants in sync
@@ -57,7 +72,6 @@ second, ask third. Never hardcode an account, profile, or repo name.
 - ⚠️ **Ask first:** Before anything in a protected environment
 - ⚠️ **Ask first:** Before `import`, `state rm`, `state mv`, or `-replace`
 - ⚠️ **Ask first:** Before version bumps, or anything that destroys data
-- 🚫 **Never:** Run `terraform destroy` — any environment, targeted or not
 - 🚫 **Never:** `-auto-approve` a plan the user has not seen
 - 🚫 **Never:** Edit or `state push` a state file by hand
 - 🚫 **Never:** Apply your way out of a bad import — fix the configuration

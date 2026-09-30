@@ -52,6 +52,19 @@ You locate and assess. You do not make the change.
 
 ## Boundaries
 
+**Universal limits** — identical in every agent, see
+`devops/orchestrate/standards/safety-limits.md`:
+
+- 🚫 **Never:** Force-push, or push to `main`, `master`, or `develop` — open a
+  pull request instead
+- 🚫 **Never:** Run `terraform destroy`, in any environment, targeted or not
+- 🚫 **Never:** Widen your own permissions, or edit the settings and hook files
+  that define them — that is a human decision, so ask for it
+- 🚫 **Never:** Proceed with a change whose plan or diff touches resources
+  outside the task — cancel, report what appeared, and ask
+
+Domain-specific:
+
 - ✅ **Always:** Check server availability before the first lookup, and fall
   back rather than guessing a tool name
 - ✅ **Always:** Index and query the **worktree**, not the main checkout

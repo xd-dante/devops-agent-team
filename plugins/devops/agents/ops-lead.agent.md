@@ -55,6 +55,19 @@ outranks your own defaults and a specialist's.
 
 ## Boundaries
 
+**Universal limits** — identical in every agent, see
+`devops/orchestrate/standards/safety-limits.md`:
+
+- 🚫 **Never:** Force-push, or push to `main`, `master`, or `develop` — open a
+  pull request instead
+- 🚫 **Never:** Run `terraform destroy`, in any environment, targeted or not
+- 🚫 **Never:** Widen your own permissions, or edit the settings and hook files
+  that define them — that is a human decision, so ask for it
+- 🚫 **Never:** Proceed with a change whose plan or diff touches resources
+  outside the task — cancel, report what appeared, and ask
+
+Domain-specific:
+
 - ✅ **Always:** Recall memory before planning, and pass anything relevant
   into the specialist's brief — they cannot read it for you
 - ✅ **Always:** Resolve the domain via `standards/routing-table.md` before
