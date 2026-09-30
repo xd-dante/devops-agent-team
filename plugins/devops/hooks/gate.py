@@ -23,6 +23,53 @@ import re
 import shlex
 import sys
 
+GUARDED = ("settings.json", "settings.local.json", "hooks.json", "gate.py",
+           "permissions.defaultmode")
+
+
+def _is_guarded(path: str) -> bool:
+    return any(g in path.lower() for g in GUARDED)
+
+
+def _writes_guarded_file(command: str) -> bool:
+    """True only when a write mechanism TARGETS a guarded file.
+
+    Co-occurrence is not enough: `python3 tests/test_gate.py > /tmp/out` names
+    a guarded file and redirects, but writes somewhere harmless.
+    """
+    low = command.lower()
+
+    # shell redirection: inspect the target that follows > or >>
+    for m in re.finditer(r">>?\s*([^\s;|&]+)", command):
+        if _is_guarded(m.group(1)):
+            return True
+
+    try:
+        tokens = shlex.split(command)
+    except ValueError:
+        tokens = command.split()
+
+    # commands whose file arguments are the thing being changed
+    mutators = {"tee", "rm", "mv", "truncate", "chmod", "chown", "dd", "install", "ln"}
+    for i, t in enumerate(tokens):
+        base = t.rsplit("/", 1)[-1]
+        if base in mutators and any(_is_guarded(a) for a in tokens[i + 1:] if not a.startswith("-")):
+            return True
+        if base in {"sed", "perl", "gsed"} and "-i" in tokens[i + 1:]:
+            if any(_is_guarded(a) for a in tokens[i + 1:] if not a.startswith("-")):
+                return True
+
+    # inline interpreters can write anything; if a guarded name appears in the
+    # program text, refuse rather than trying to read the code
+    if re.search(r"(python3?|node|ruby|perl)\s+-c\b", low) and _is_guarded(low):
+        return True
+
+    # `claude config set ... permissions.defaultMode ...`
+    if "config set" in low and "permissions.defaultmode" in low:
+        return True
+    return False
+
+
 PROTECTED = {"develop", "main", "master"}
 
 
@@ -70,13 +117,40 @@ def decide(command: str):
     low = c.lower()
 
     # --- permission bypass: never, by any route -------------------------
-    for flag in ("--dangerously-skip-permissions", "danger-full-access",
-                 "--yolo", "openrig_yolo=1"):
+    # `low` is whitespace-normalised and lowercased, so one spelling per form
+    # covers bypassPermissions / BYPASSPERMISSIONS and friends.
+    for flag in (
+        "--dangerously-skip-permissions",
+        "--dangerously-bypass-approvals-and-sandbox",
+        "danger-full-access",
+        "--yolo",
+        "openrig_yolo=1",
+        "--permission-mode bypasspermissions",
+        "--permission-mode=bypasspermissions",
+        "--ask-for-approval never",
+        "--ask-for-approval=never",
+    ):
         if flag in low:
             return DENY, (
-                f"{flag} removes every tool-permission check for the rest of the "
+                f"{flag} removes tool-permission checks for the rest of the "
                 "session. If a command genuinely needs broader access, escalate "
                 "to the orchestrator and let a human grant it explicitly.")
+    # codex short form: -a never
+    if re.search(r"(?<![\w-])-a\s+never(?![\w-])", low):
+        return DENY, (
+            "-a never disables approval prompts for the rest of the session. "
+            "Escalate instead of removing the checks.")
+
+    # --- do not disarm the gate itself -----------------------------------
+    # The gate only sees Bash, so a command that rewrites the permission config
+    # or removes the hook would defeat every rule below it. Reading these files
+    # stays allowed, and so does redirecting unrelated output — only a write
+    # whose TARGET is a guarded file is refused.
+    if _writes_guarded_file(c):
+        return DENY, (
+            "this command writes to the permission configuration or the gate "
+            "hook itself. Changing what an agent is allowed to do is a human "
+            "decision — escalate and say what access is needed and why.")
 
     # --- terraform -------------------------------------------------------
     if re.search(r"\bterraform\b", low) or re.search(r"\btofu\b", low):

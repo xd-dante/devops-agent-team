@@ -43,7 +43,8 @@ The gate refuses a narrow set of commands:
 | `kubectl` mutations, `exec`, `port-forward`, `rollout restart` | desired state lives in git |
 | force-push, push to `develop`/`main`/`master`, remote branch deletion | protected history |
 | `argocd app sync`, `kargo promote` | gated single-target actions |
-| `--dangerously-skip-permissions`, `danger-full-access` | removes every check for the rest of the session |
+| `--dangerously-skip-permissions`, `--permission-mode bypassPermissions`, `danger-full-access`, `-a never`, `--dangerously-bypass-approvals-and-sandbox` | removes tool-permission checks for the rest of the session |
+| a write whose **target** is a settings file, `hooks.json` or `gate.py` | an agent must not change what it is allowed to do; reading them is fine |
 
 Every denial names the escalation path, so a blocked seat reports upward rather
 than stalling.

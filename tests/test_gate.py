@@ -30,6 +30,15 @@ MUST_ALLOW = [
     ("git push origin develop-fix",                                 "branch prefixed 'develop'"),
     ("git push origin xddante/fix/master-data",                     "branch containing 'master'"),
     ("git push",                                                    "bare push to upstream"),
+    # reading the config is fine; only write mechanisms are refused
+    ("cat ~/.claude/settings.json",                                 "read permission config"),
+    ("grep -n deny plugins/devops/hooks/gate.py",                   "read the gate"),
+    ("aws iam simulate-principal-policy --policy-source-arn x",     "policy simulator, read-only"),
+    # a guarded filename may appear while the write goes somewhere harmless
+    ("python3 tests/test_gate.py > /tmp/out.txt",                    "test output redirect"),
+    ("python3 tests/test_gate.py | tee /tmp/out.txt",                "test output via tee"),
+    ("cp plugins/devops/hooks/gate.py /tmp/backup.py",              "copying the gate elsewhere"),
+    ("diff plugins/devops/hooks/gate.py /tmp/backup.py",            "diffing the gate"),
 ]
 
 MUST_DENY = [
@@ -56,6 +65,15 @@ MUST_DENY = [
     ("kargo promote --stage uat --project whitebox-cd",     "gated promotion"),
     ("claude --dangerously-skip-permissions",               "permission bypass"),
     ("codex -s danger-full-access -a never",                "permission bypass"),
+    ("claude --permission-mode bypassPermissions -p 'go'",  "permission-mode bypass"),
+    ("claude --permission-mode=bypassPermissions",           "permission-mode bypass, equals form"),
+    ("codex --dangerously-bypass-approvals-and-sandbox",     "codex bypass flag"),
+    ("codex -a never exec 'do it'",                          "codex short approval bypass"),
+    ("codex --ask-for-approval never",                       "codex long approval bypass"),
+    ("echo '{}' > ~/.claude/settings.json",                  "rewrites permission config"),
+    ("rm plugins/devops/hooks/hooks.json",                   "deletes the gate hook"),
+    ("sed -i '' 's/deny/allow/' plugins/devops/hooks/gate.py","edits the gate itself"),
+    ("claude config set -g permissions.defaultMode bypassPermissions > /dev/null", "config bypass"),
     ("rm -rf ~",                                            "home deletion"),
     ("rm -rf /",                                            "root deletion"),
 ]
