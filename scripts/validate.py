@@ -220,6 +220,7 @@ REQUIRED_LIMITS = [
     ("terraform destroy", "Run `terraform destroy`, in any environment"),
     ("self-widening permissions", "Widen your own permissions"),
     ("unrelated changes in a plan", "touches resources\n  outside the task"),
+    ("credentials exceed remit", "may permit far more than your remit"),
 ]
 
 

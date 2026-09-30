@@ -59,6 +59,10 @@ peer's read-only question directly.
   that define them — that is a human decision, so ask for it
 - 🚫 **Never:** Proceed with a change whose plan or diff touches resources
   outside the task — cancel, report what appeared, and ask
+- 🚫 **Never:** Assume a command is safe because your remit is read-only — the
+  credentials you hold may permit far more than your remit does. Choose read
+  verbs deliberately, and if a command's effect is not obvious from its name,
+  do not run it
 
 Domain-specific:
 

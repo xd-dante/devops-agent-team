@@ -21,11 +21,18 @@ from the routing table is never dispatched, so it gets no seat either.
 
 Read off each agent's own `description`, never hardcoded:
 
-| Class | Meaning | Seat today |
-|-------|---------|------------|
-| `strict` | strictly read-only | ✅ in `rigs/devops-readonly` |
-| `gated` | read-only apart from one gated mutation | ❌ waiting on hook-enforced gates |
-| `mutating` | changes files, repos or infrastructure | ❌ waiting on hook-enforced gates |
+| Class | Meaning |
+|-------|---------|
+| `strict` | has agreed to read only |
+| `gated` | read-only apart from one mutation it must be asked for |
+| `mutating` | changes files, repositories or infrastructure |
+
+**A class is a declaration of intent, not a capability limit.** A `strict`
+agent holding an administrator profile can delete a production database —
+nothing in the class prevents it. The class states what the agent has agreed
+to do, which is why the limits are written as behaviour rather than as trust
+in the environment. `rigs/devops-readonly` uses only `strict` seats for a
+lower-risk first run; `rigs/devops-full` runs all twelve.
 
 ## Limits on a mutating seat
 

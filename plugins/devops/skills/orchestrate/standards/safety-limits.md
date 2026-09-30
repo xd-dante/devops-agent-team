@@ -1,13 +1,30 @@
 # Safety Limits
 
 The floor every agent stands on, regardless of domain. Domain-specific rules
-live in each agent's own Boundaries; these four are universal and appear
+live in each agent's own Boundaries; these five are universal and appear
 **verbatim** in every agent, because a limit worded differently in twelve
 places is twelve limits.
 
 `scripts/validate.py` fails if an agent is missing one.
 
-## The four
+## Why the instructions carry the weight
+
+These plugins are general. Whoever installs them supplies their own
+credentials, and that is frequently an administrator profile with no
+environment separation — because it is what they already had. A design that
+relies on the operator having configured a read-only role protects only the
+operators who needed protecting least.
+
+So the agent's own discipline is the **primary** mechanism, not a fallback to
+one. Write every limit as if the credentials in the session permit anything,
+because for many users they will.
+
+That also means an access class — `strict`, `gated`, `mutating` — is a
+**declaration of intent, not a capability limit**. A "strictly read-only" agent
+holding an administrator profile can delete a production database; nothing in
+the class stops it. The class says what the agent has agreed to do.
+
+## The five
 
 ```
 - 🚫 **Never:** Force-push, or push to `main`, `master`, or `develop` — open a
@@ -17,9 +34,13 @@ places is twelve limits.
   that define them — that is a human decision, so ask for it
 - 🚫 **Never:** Proceed with a change whose plan or diff touches resources
   outside the task — cancel, report what appeared, and ask
+- 🚫 **Never:** Assume a command is safe because your remit is read-only — the
+  credentials you hold may permit far more than your remit does. Choose read
+  verbs deliberately, and if a command's effect is not obvious from its name,
+  do not run it
 ```
 
-## Why these four and not more
+## Why these five and not more
 
 Each one is a decision an agent can reach *locally reasonably* and still be
 wrong, which is exactly the class of mistake a boundary catches:
@@ -31,10 +52,14 @@ wrong, which is exactly the class of mistake a boundary catches:
 - **Self-widening permissions.** An agent blocked by a permission has a
   locally sensible fix available: remove the permission. Every subsequent
   limit depends on it not doing that.
-- **Unrelated changes in a plan.** The most dangerous of the four, because it
+- **Unrelated changes in a plan.** The most dangerous of the five, because it
   arrives disguised as success: the plan applies cleanly, and the change you
   did not ask for goes out with the one you did. Drift, a stale module pin, or
   someone else's half-finished work all show up this way.
+- **Credentials exceeding the remit.** A read-only agent given an
+  administrator profile has every destructive verb available to it, and no
+  error message on the way. "I am the read-only agent" is not a safety
+  property; choosing read verbs is.
 
 ## The fourth one is a stop, not a warning
 
@@ -110,12 +135,17 @@ is the whole point. This one has to stay a judgement call in the agent.
 
 ### What each layer is actually for
 
-| Layer | Strength | Blind spot |
-|-------|----------|------------|
-| Agent limits | catches the judgement calls: untargeted apply, a plan exceeding the task | advisory — it holds because the agent read it |
-| `permissions.deny` | absolute, immediate, survives permission modes, splits compound commands | prefix-matched, so argument order and refspecs slip past |
-| Server-side branch protection | rejects a force-push to a protected branch even if everything above fails | nothing outside the forge |
-| Cloud IAM | the only layer an agent cannot talk its way around | needs roles set up per environment |
+| Layer | Who sets it up | Strength | Blind spot |
+|-------|----------------|----------|------------|
+| **Agent limits** | **ships with these plugins** | the judgement calls: untargeted apply, a plan exceeding the task, a verb whose effect is unclear | advisory — it holds because the agent read it |
+| `permissions.deny` | the operator | absolute, immediate, survives permission modes, splits compound commands | prefix-matched, so argument order and refspecs slip past |
+| Server-side branch protection | the operator's forge | rejects a force-push to a protected branch even if everything above fails | nothing outside the forge |
+| Cloud IAM | the operator | the only layer an agent cannot talk its way around | assumes roles exist per environment, which is often untrue |
 
-No single layer is sufficient, and the top two are the weakest. If only one
-thing gets done, make it the IAM read-only role for the investigating agents.
+Only the first row travels with the plugins. The other three are worth
+recommending and cannot be assumed — which is precisely why the agent limits
+have to be written for the case where none of them are in place.
+
+If you are the operator, the deny rules are ten minutes of work and the
+read-only role is the strongest single thing you can add. Neither changes what
+the agents must already do on their own.
