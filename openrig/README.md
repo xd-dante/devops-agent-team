@@ -27,17 +27,41 @@ Read off each agent's own `description`, never hardcoded:
 | `gated` | read-only apart from one gated mutation | ❌ waiting on hook-enforced gates |
 | `mutating` | changes files, repos or infrastructure | ❌ waiting on hook-enforced gates |
 
-## Why the mutating seats have no rig yet
+## The mutation gate
 
-A managed OpenRig seat runs with `permissions.defaultMode: acceptEdits` and a
-pre-trusted workspace. Every "⚠️ Ask first" and gated precondition in this repo
-is **prose in an agent's Boundaries section**, and prose is not enforcement. Put
-differently: the gates that make `terraform-engineer` safe interactively do not
-survive being run as an auto-accepting seat.
+`plugins/devops/hooks/gate.py` runs on `PreToolUse` for `Bash` and decides
+without a human present. That is the point: an unattended seat has nobody at
+its terminal to answer a permission prompt, so a prompt either stalls the seat
+or gets allowlisted away.
 
-Those gates have to move somewhere a seat cannot relax — `PreToolUse` hooks —
-before a mutating seat is worth launching. Until then `rigs/devops-readonly`
-exercises routing, topology and reporting with nothing that can write.
+**File edits are untouched.** Writing Terraform, charts and code is the work.
+The gate refuses a narrow set of commands:
+
+| Refused | Why |
+|---------|-----|
+| `terraform apply`/`plan` without `-target`, any `destroy`, `state rm/mv/push` | blast radius beyond the change; state surgery is not reversible from here |
+| `kubectl` mutations, `exec`, `port-forward`, `rollout restart` | desired state lives in git |
+| force-push, push to `develop`/`main`/`master`, remote branch deletion | protected history |
+| `argocd app sync`, `kargo promote` | gated single-target actions |
+| `--dangerously-skip-permissions`, `danger-full-access` | removes every check for the rest of the session |
+
+Every denial names the escalation path, so a blocked seat reports upward rather
+than stalling.
+
+Protected-branch matching parses the **refspec**, not the command string: a
+`\b` boundary treats `-` and `/` as word edges, so `feat/main-nav` and
+`develop-fix` look like protected branches to a naive regex. They are pushable;
+`tests/test_gate.py` covers them.
+
+Run the tests — both directions, because a gate that denies everything is as
+useless as none:
+
+```bash
+python3 tests/test_gate.py    # 19 allow, 25 deny, 4 non-Bash
+```
+
+`scripts/validate.py` warns if a rig contains a `gated` or `mutating` seat while
+no plugin ships gate hooks.
 
 ## What OpenRig writes to your machine
 

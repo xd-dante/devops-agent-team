@@ -213,7 +213,7 @@ def check_rigs() -> None:
                 warnings.append(f"{rel}: unknown edge kind {kind!r}")
 
         # a seat that can mutate should not exist while the gates are only prose
-        gate_hooks = list(ROOT.glob("hooks/*.json")) + list(ROOT.glob("hooks/**/*.py"))
+        gate_hooks = list(ROOT.glob("plugins/*/hooks/*.json"))
         for name in sorted(refs):
             klass = access.get(name)
             if klass in {"gated", "mutating"} and name != "ops-lead" and not gate_hooks:

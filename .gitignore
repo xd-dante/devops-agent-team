@@ -28,3 +28,6 @@ memory/MEMORY.md
 memory/instructions.md
 memory/entries/*.md
 !memory/entries/*.example
+
+__pycache__/
+*.pyc
