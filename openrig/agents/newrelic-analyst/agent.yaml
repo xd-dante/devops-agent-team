@@ -3,18 +3,18 @@
 name: newrelic-analyst
 version: "1.0"
 description: Observability analyst
-# access: strict  (strictly read-only: only can_observe edges may point at this seat)
+# access: strict  (strictly read-only by declaration: only can_observe edges may point at this seat)
+# hub skill: newrelic-triage (loaded from the installed plugin, named in guidance/role.md)
 defaults:
   runtime: claude-code
-profiles:
-  default:
-    uses:
-      skills: [newrelic-triage, remember]
-      plugins: [devops-agent-team:newrelic]
 resources:
   guidance:
     - id: role
       path: guidance/role.md
+profiles:
+  default:
+    uses:
+      guidance: [role]
 startup:
   files:
     - path: guidance/role.md

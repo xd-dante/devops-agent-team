@@ -31,3 +31,7 @@ memory/entries/*.md
 
 __pycache__/
 *.pyc
+
+# OpenRig runtime artifacts written into a seat's working directory
+.openrig/
+rigs/*/CLAUDE.md

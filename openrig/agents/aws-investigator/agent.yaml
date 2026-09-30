@@ -3,18 +3,18 @@
 name: aws-investigator
 version: "1.0"
 description: Cloud investigation specialist
-# access: strict  (strictly read-only: only can_observe edges may point at this seat)
+# access: strict  (strictly read-only by declaration: only can_observe edges may point at this seat)
+# hub skill: aws-investigate (loaded from the installed plugin, named in guidance/role.md)
 defaults:
   runtime: codex
-profiles:
-  default:
-    uses:
-      skills: [aws-investigate, remember]
-      plugins: [devops-agent-team:aws]
 resources:
   guidance:
     - id: role
       path: guidance/role.md
+profiles:
+  default:
+    uses:
+      guidance: [role]
 startup:
   files:
     - path: guidance/role.md

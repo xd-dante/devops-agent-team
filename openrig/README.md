@@ -17,6 +17,48 @@ Agent → hub skill comes from
 directory layout: one plugin can own several hub skills, and an agent missing
 from the routing table is never dispatched, so it gets no seat either.
 
+## Two things found by actually booting it
+
+**Skills are not referenced by name.** `uses.skills` resolves against an
+agent's **declared resources**, and resource paths may not contain `..` — so
+declaring a plugin's hub skill would mean copying every action and standard
+into each agent directory. The generated `agent.yaml` therefore declares only
+`guidance/role.md`. The hub skill still loads, because a seat runs the harness
+with this marketplace installed and `role.md` carries the agent's own Skills
+table. Referenced, never copied — through the harness rather than through
+OpenRig.
+
+`culture_file` rejects `..` for the same reason, so each rig directory gets a
+generated copy of `rigs/CULTURE.md`, drift-checked like the rest.
+
+**A seat's role is also projected into a managed block in the workspace
+`CLAUDE.md`.** Seats sharing one `cwd` therefore overwrite each other, and the
+file ends up holding whichever seat attached last. The authoritative delivery
+is `startup.files` with `delivery_hint: send_text`, which is per session — but
+if it matters that each seat's `CLAUDE.md` matches its own role, give the seats
+distinct working directories. `.openrig/` and a managed `CLAUDE.md` appear in
+the seat's cwd at launch; both are gitignored here.
+
+## Before the first boot: answer the prompts, or they stall the fleet
+
+Every seat came up blocked on Claude Code's project MCP-server prompt:
+
+```
+3 new MCP servers found in this project
+Space to select · Esc to reject all
+```
+
+All twelve sat there until answered — `Readiness timeout after 30s`. Nothing
+about this is OpenRig's fault; it is what an interactive prompt does when
+nobody is at the terminal. Decide once, in `~/.claude/settings.json`:
+
+```json
+"enableAllProjectMcpServers": false
+```
+
+or list the servers you want enabled, so a seat never has to ask. Then
+`rig ps --nodes -A` should show every seat `run` with no reason.
+
 ## Access classes
 
 Read off each agent's own `description`, never hardcoded:

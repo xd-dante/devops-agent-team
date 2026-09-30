@@ -3,18 +3,18 @@
 name: argocd-analyst
 version: "1.0"
 description: GitOps delivery specialist
-# access: gated  (mutates only behind a gate — no seat until the gates are hook-enforced)
+# access: gated  (mutates only when asked for it)
+# hub skill: argocd-diagnose (loaded from the installed plugin, named in guidance/role.md)
 defaults:
   runtime: claude-code
-profiles:
-  default:
-    uses:
-      skills: [argocd-diagnose, remember]
-      plugins: [devops-agent-team:argocd]
 resources:
   guidance:
     - id: role
       path: guidance/role.md
+profiles:
+  default:
+    uses:
+      guidance: [role]
 startup:
   files:
     - path: guidance/role.md

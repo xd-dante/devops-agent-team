@@ -3,18 +3,18 @@
 name: ticket-analyst
 version: "1.0"
 description: Issue-tracker specialist
-# access: mutating  (mutating — no seat until the gates are hook-enforced)
+# access: mutating  (mutating)
+# hub skill: ticket-manage (loaded from the installed plugin, named in guidance/role.md)
 defaults:
   runtime: claude-code
-profiles:
-  default:
-    uses:
-      skills: [ticket-manage, remember]
-      plugins: [devops-agent-team:jira]
 resources:
   guidance:
     - id: role
       path: guidance/role.md
+profiles:
+  default:
+    uses:
+      guidance: [role]
 startup:
   files:
     - path: guidance/role.md

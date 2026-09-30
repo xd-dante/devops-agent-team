@@ -1,6 +1,6 @@
 version: "0.2"
 name: devops-readonly
-culture_file: ../CULTURE.md
+culture_file: CULTURE.md
 summary: >
   Read-only DevOps investigation rig. The orchestrator routes a question to the
   specialist that owns the domain and consolidates one report. Every seat here
@@ -13,6 +13,10 @@ summary: >
   Boundaries section, and a managed seat runs with acceptEdits and a pre-trusted
   workspace, which does not honour prose. They join once the gates are hooks.
 
+# Every seat defaults to claude-code so a first boot needs only one harness.
+# codex is opt-in: install and authenticate it, then change a seat's runtime.
+# Running two specialists on different models makes their disagreement
+# informative — the upstream adversarial-review rig does exactly that.
 pods:
   - id: orch
     label: Orchestration

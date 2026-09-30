@@ -3,18 +3,18 @@
 name: kargo-promoter
 version: "1.0"
 description: Container-image promotion specialist
-# access: gated  (mutates only behind a gate — no seat until the gates are hook-enforced)
+# access: gated  (mutates only when asked for it)
+# hub skill: kargo-promote (loaded from the installed plugin, named in guidance/role.md)
 defaults:
   runtime: claude-code
-profiles:
-  default:
-    uses:
-      skills: [kargo-promote, remember]
-      plugins: [devops-agent-team:kargo]
 resources:
   guidance:
     - id: role
       path: guidance/role.md
+profiles:
+  default:
+    uses:
+      guidance: [role]
 startup:
   files:
     - path: guidance/role.md

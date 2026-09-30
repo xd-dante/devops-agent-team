@@ -1,6 +1,6 @@
 version: "0.2"
 name: devops-full
-culture_file: ../CULTURE.md
+culture_file: CULTURE.md
 summary: >
   The full DevOps team. Seats that change files, repositories and infrastructure
   are included because the mutation gate is now a PreToolUse hook rather than
@@ -13,6 +13,10 @@ summary: >
   attempt to disable tool permissions. A denial names the escalation path, so a
   blocked seat reports upward instead of stalling.
 
+# Every seat defaults to claude-code so a first boot needs only one harness.
+# codex is opt-in: install and authenticate it, then change a seat's runtime.
+# Running two specialists on different models makes their disagreement
+# informative — the upstream adversarial-review rig does exactly that.
 pods:
   - id: orch
     label: Orchestration
@@ -40,7 +44,7 @@ pods:
     label: Live systems
     members:
       - {id: k8s,   agent_ref: "local:../../openrig/agents/kubernetes-investigator", runtime: claude-code, profile: default, cwd: "."}
-      - {id: argo,  agent_ref: "local:../../openrig/agents/argocd-analyst",          runtime: codex,       profile: default, cwd: "."}
+      - {id: argo,  agent_ref: "local:../../openrig/agents/argocd-analyst",          runtime: claude-code, profile: default, cwd: "."}
       - {id: kargo, agent_ref: "local:../../openrig/agents/kargo-promoter",          runtime: claude-code, profile: default, cwd: "."}
     edges:
       # Pod evidence explains the Application status; the reverse rarely holds.
@@ -53,7 +57,7 @@ pods:
   - id: cloud
     label: Cloud
     members:
-      - {id: investigator, agent_ref: "local:../../openrig/agents/aws-investigator",  runtime: codex,       profile: default, cwd: "."}
+      - {id: investigator, agent_ref: "local:../../openrig/agents/aws-investigator",  runtime: claude-code, profile: default, cwd: "."}
       - {id: cost,         agent_ref: "local:../../openrig/agents/aws-cost-analyzer", runtime: claude-code, profile: default, cwd: "."}
     edges:
       - {kind: can_observe, from: cost, to: investigator}

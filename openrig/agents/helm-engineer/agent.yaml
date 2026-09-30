@@ -3,18 +3,18 @@
 name: helm-engineer
 version: "1.0"
 description: Helm chart specialist
-# access: mutating  (mutating — no seat until the gates are hook-enforced)
+# access: mutating  (mutating)
+# hub skill: helm-authoring (loaded from the installed plugin, named in guidance/role.md)
 defaults:
   runtime: claude-code
-profiles:
-  default:
-    uses:
-      skills: [helm-authoring, remember]
-      plugins: [devops-agent-team:helm]
 resources:
   guidance:
     - id: role
       path: guidance/role.md
+profiles:
+  default:
+    uses:
+      guidance: [role]
 startup:
   files:
     - path: guidance/role.md

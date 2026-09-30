@@ -3,18 +3,18 @@
 name: delivery-engineer
 version: "1.0"
 description: Git and GitHub delivery specialist
-# access: mutating  (mutating — no seat until the gates are hook-enforced)
+# access: mutating  (mutating)
+# hub skill: pr-deliver (loaded from the installed plugin, named in guidance/role.md)
 defaults:
   runtime: claude-code
-profiles:
-  default:
-    uses:
-      skills: [pr-deliver, remember]
-      plugins: [devops-agent-team:github]
 resources:
   guidance:
     - id: role
       path: guidance/role.md
+profiles:
+  default:
+    uses:
+      guidance: [role]
 startup:
   files:
     - path: guidance/role.md
