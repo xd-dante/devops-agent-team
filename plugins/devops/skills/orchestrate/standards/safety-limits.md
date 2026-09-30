@@ -63,7 +63,59 @@ Two stronger mechanisms exist and compose with this, both outside the agent:
 | `permissions.deny` in Claude Code settings | absolute prohibitions — `terraform destroy`, force-push, `kubectl delete`. Cannot be overridden by a permission mode |
 | Cloud IAM roles | the real boundary. A read-only role for an investigating agent cannot be argued around, and costs it nothing it needs |
 
-A deny rule cannot express the conditional cases — "apply *without* `-target`",
-or "a push whose refspec resolves to a protected branch" — because deny beats
-allow, so denying `terraform apply*` also blocks the targeted form. Those two
-stay judgement calls held here.
+## The deny list, and what it actually covers
+
+Verified behaviour, not documentation reading:
+
+- deny rules take effect **immediately** — no restart
+- deny beats allow, so `Bash(*)` in `allow` does not weaken them
+- **compound commands are split and each part checked** — `true && <denied>`
+  is denied, and so is a denied command buried in a longer script
+
+A starting list for an infrastructure repo:
+
+```jsonc
+"permissions": {
+  "deny": [
+    "Bash(terraform destroy:*)",  "Bash(tofu destroy:*)",
+    "Bash(terraform state rm:*)", "Bash(terraform state push:*)",
+
+    "Bash(git push --force:*)",   "Bash(git push --force-with-lease:*)",
+    "Bash(git push -f:*)",        "Bash(git push origin --force:*)",
+    "Bash(git push --delete:*)",  "Bash(git push origin --delete:*)",
+
+    "Bash(git push origin main:*)",    "Bash(git push origin master:*)",
+    "Bash(git push origin develop:*)",
+
+    "Bash(kubectl delete:*)", "Bash(kubectl drain:*)", "Bash(kubectl replace:*)",
+
+    "Bash(claude config set -g permissions:*)"
+  ]
+}
+```
+
+### Three gaps, measured
+
+**Matching is by prefix, so argument order matters.** With a rule denying
+`echo denytest`, the command `echo --quiet denytest` runs: the denied token is
+no longer at the start. So `git push origin feat/x --force` is **not** caught
+by `Bash(git push --force:*)`. Listing orderings helps and does not close it.
+
+**A refspec is opaque to a prefix rule.** `git push origin HEAD:refs/heads/main`
+matches no rule naming `main` as an argument.
+
+**`terraform apply` without `-target` cannot be denied at all.** Deny beats
+allow, so denying `Bash(terraform apply:*)` also blocks the targeted form that
+is the whole point. This one has to stay a judgement call in the agent.
+
+### What each layer is actually for
+
+| Layer | Strength | Blind spot |
+|-------|----------|------------|
+| Agent limits | catches the judgement calls: untargeted apply, a plan exceeding the task | advisory — it holds because the agent read it |
+| `permissions.deny` | absolute, immediate, survives permission modes, splits compound commands | prefix-matched, so argument order and refspecs slip past |
+| Server-side branch protection | rejects a force-push to a protected branch even if everything above fails | nothing outside the forge |
+| Cloud IAM | the only layer an agent cannot talk its way around | needs roles set up per environment |
+
+No single layer is sufficient, and the top two are the weakest. If only one
+thing gets done, make it the IAM read-only role for the investigating agents.
