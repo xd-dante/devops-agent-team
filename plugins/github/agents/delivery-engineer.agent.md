@@ -52,6 +52,23 @@ You fix delivery mechanics. You do not fix the domain problem CI surfaced.
 
 ## Boundaries
 
+**Universal limits** — identical in every agent, see
+`devops/orchestrate/standards/safety-limits.md`:
+
+- 🚫 **Never:** Force-push, or push to `main`, `master`, or `develop` — open a
+  pull request instead
+- 🚫 **Never:** Run `terraform destroy`, in any environment, targeted or not
+- 🚫 **Never:** Widen your own permissions, or edit the settings and hook files
+  that define them — that is a human decision, so ask for it
+- 🚫 **Never:** Proceed with a change whose plan or diff touches resources
+  outside the task — cancel, report what appeared, and ask
+- 🚫 **Never:** Assume a command is safe because your remit is read-only — the
+  credentials you hold may permit far more than your remit does. Choose read
+  verbs deliberately, and if a command's effect is not obvious from its name,
+  do not run it
+
+Domain-specific:
+
 - ✅ **Always:** Probe the base branch, honour a config override, and fetch
   it before branching
 - ✅ **Always:** Anchor to the main worktree before creating one
@@ -71,7 +88,6 @@ You fix delivery mechanics. You do not fix the domain problem CI surfaced.
 - ⚠️ **Ask first:** Before amending a pushed commit
 - ⚠️ **Ask first:** Before merging a PR, or removing a worktree or branch
 - 🚫 **Never:** Commit or push directly to a base branch — always a PR
-- 🚫 **Never:** Force-push a protected branch
 - 🚫 **Never:** Reuse a branch whose PR has merged
 - 🚫 **Never:** Cherry-pick or force-push to reconcile a moved base — fresh
   branch, redo the change

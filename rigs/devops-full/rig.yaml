@@ -1,0 +1,106 @@
+version: "0.2"
+name: devops-full
+culture_file: CULTURE.md
+summary: >
+  The full DevOps team. Seats that change files, repositories and infrastructure
+  are included because the mutation gate is now a PreToolUse hook rather than
+  prose in an agent's Boundaries section.
+
+  Agents edit files freely — that is the work. The hook refuses the narrow set
+  of commands that change live systems or rewrite shared history: untargeted or
+  destroy-shaped Terraform, kubectl mutations, force-pushes and pushes to a
+  protected branch, unprompted Application syncs and Stage promotions, and any
+  attempt to disable tool permissions. A denial names the escalation path, so a
+  blocked seat reports upward instead of stalling.
+
+# Every seat defaults to claude-code so a first boot needs only one harness.
+# codex is opt-in: install and authenticate it, then change a seat's runtime.
+# Running two specialists on different models makes their disagreement
+# informative — the upstream adversarial-review rig does exactly that.
+pods:
+  - id: orch
+    label: Orchestration
+    members:
+      - {id: lead, agent_ref: "local:../../openrig/agents/ops-lead", runtime: claude-code, profile: default, cwd: "."}
+    edges: []
+
+  - id: delivery
+    label: Tracker and delivery
+    members:
+      - {id: ticket,  agent_ref: "local:../../openrig/agents/ticket-analyst",    runtime: claude-code, profile: default, cwd: "."}
+      - {id: shipper, agent_ref: "local:../../openrig/agents/delivery-engineer", runtime: claude-code, profile: default, cwd: "."}
+    edges: []
+
+  - id: iac
+    label: Infrastructure as code
+    members:
+      - {id: tf,   agent_ref: "local:../../openrig/agents/terraform-engineer", runtime: claude-code, profile: default, cwd: "."}
+      - {id: helm, agent_ref: "local:../../openrig/agents/helm-engineer",      runtime: claude-code, profile: default, cwd: "."}
+    edges:
+      # "chart value not taking effect" — classify static vs computed first.
+      - {kind: can_observe, from: helm, to: tf}
+
+  - id: runtime
+    label: Live systems
+    members:
+      - {id: k8s,   agent_ref: "local:../../openrig/agents/kubernetes-investigator", runtime: claude-code, profile: default, cwd: "."}
+      - {id: argo,  agent_ref: "local:../../openrig/agents/argocd-analyst",          runtime: claude-code, profile: default, cwd: "."}
+      - {id: kargo, agent_ref: "local:../../openrig/agents/kargo-promoter",          runtime: claude-code, profile: default, cwd: "."}
+    edges:
+      # Pod evidence explains the Application status; the reverse rarely holds.
+      - {kind: can_observe, from: argo,  to: k8s}
+      # "synced but nothing changed" is usually a pinned revision, which the
+      # promotion agent can confirm.
+      - {kind: can_observe, from: argo,  to: kargo}
+      - {kind: can_observe, from: kargo, to: argo}
+
+  - id: cloud
+    label: Cloud
+    members:
+      - {id: investigator, agent_ref: "local:../../openrig/agents/aws-investigator",  runtime: claude-code, profile: default, cwd: "."}
+      - {id: cost,         agent_ref: "local:../../openrig/agents/aws-cost-analyzer", runtime: claude-code, profile: default, cwd: "."}
+    edges:
+      - {kind: can_observe, from: cost, to: investigator}
+
+  - id: observability
+    label: Observability
+    members:
+      - {id: newrelic, agent_ref: "local:../../openrig/agents/newrelic-analyst", runtime: claude-code, profile: default, cwd: "."}
+    edges: []
+
+  - id: code
+    label: Code navigation
+    members:
+      - {id: navigator, agent_ref: "local:../../openrig/agents/codegraph-navigator", runtime: claude-code, profile: default, cwd: "."}
+    edges: []
+
+# Only the lead delegates. No delegates_to between specialists — "writes never
+# chain" is the absence of those edges, and validate.py errors if one appears.
+edges:
+  - {kind: delegates_to, from: orch.lead, to: delivery.ticket}
+  - {kind: delegates_to, from: orch.lead, to: delivery.shipper}
+  - {kind: delegates_to, from: orch.lead, to: iac.tf}
+  - {kind: delegates_to, from: orch.lead, to: iac.helm}
+  - {kind: delegates_to, from: orch.lead, to: runtime.k8s}
+  - {kind: delegates_to, from: orch.lead, to: runtime.argo}
+  - {kind: delegates_to, from: orch.lead, to: runtime.kargo}
+  - {kind: delegates_to, from: orch.lead, to: cloud.investigator}
+  - {kind: delegates_to, from: orch.lead, to: cloud.cost}
+  - {kind: delegates_to, from: orch.lead, to: observability.newrelic}
+  - {kind: delegates_to, from: orch.lead, to: code.navigator}
+
+  - {kind: can_observe, from: observability.newrelic, to: runtime.k8s}
+  - {kind: can_observe, from: runtime.k8s,            to: cloud.investigator}
+  - {kind: can_observe, from: iac.tf,                 to: code.navigator}
+
+  - {kind: escalates_to, from: delivery.ticket,        to: orch.lead}
+  - {kind: escalates_to, from: delivery.shipper,       to: orch.lead}
+  - {kind: escalates_to, from: iac.tf,                 to: orch.lead}
+  - {kind: escalates_to, from: iac.helm,               to: orch.lead}
+  - {kind: escalates_to, from: runtime.k8s,            to: orch.lead}
+  - {kind: escalates_to, from: runtime.argo,           to: orch.lead}
+  - {kind: escalates_to, from: runtime.kargo,          to: orch.lead}
+  - {kind: escalates_to, from: cloud.investigator,     to: orch.lead}
+  - {kind: escalates_to, from: cloud.cost,             to: orch.lead}
+  - {kind: escalates_to, from: observability.newrelic, to: orch.lead}
+  - {kind: escalates_to, from: code.navigator,         to: orch.lead}

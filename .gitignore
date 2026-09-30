@@ -28,3 +28,10 @@ memory/MEMORY.md
 memory/instructions.md
 memory/entries/*.md
 !memory/entries/*.example
+
+__pycache__/
+*.pyc
+
+# OpenRig runtime artifacts written into a seat's working directory
+.openrig/
+rigs/*/CLAUDE.md

@@ -152,6 +152,95 @@ def check_forbidden() -> None:
                     )
 
 
+def check_openrig_projection() -> None:
+    """openrig/agents is generated; a hand edit there is silently lost."""
+    gen = ROOT / "scripts/gen-openrig.py"
+    if not gen.is_file() or not (ROOT / "openrig/agents").is_dir():
+        return
+    import subprocess
+    r = subprocess.run([sys.executable, str(gen), "--check"],
+                       capture_output=True, text=True, cwd=ROOT)
+    if r.returncode != 0:
+        detail = (r.stderr or r.stdout).strip().replace("\n", "; ")
+        errors.append(f"openrig projection is stale — run scripts/gen-openrig.py ({detail})")
+
+
+def _rig_access_classes() -> dict[str, str]:
+    """agent name -> access class, read from the generated agent.yaml headers."""
+    out = {}
+    for y in (ROOT / "openrig/agents").glob("*/agent.yaml"):
+        m = re.search(r"^# access: (\w+)", y.read_text(encoding="utf-8"), re.M)
+        if m:
+            out[y.parent.name] = m.group(1)
+    return out
+
+
+def check_rigs() -> None:
+    """The rig topology carries the handoff contract. Verify it actually does.
+
+    Flow-style edges (`{kind: x, from: a, to: b}`) are matched directly so the
+    check needs no YAML dependency in CI.
+    """
+    rigs = sorted((ROOT / "rigs").glob("*/rig.yaml")) if (ROOT / "rigs").is_dir() else []
+    if not rigs:
+        return
+    access = _rig_access_classes()
+    for rig in rigs:
+        text = rig.read_text(encoding="utf-8")
+        rel = rig.relative_to(ROOT)
+
+        # every agent_ref resolves to a generated agent
+        refs = {}
+        for m in re.finditer(r'agent_ref:\s*"local:([^"]+)"', text):
+            target = (rig.parent / m.group(1)).resolve()
+            name = target.name
+            refs[name] = target
+            if not (target / "agent.yaml").is_file():
+                errors.append(f"{rel}: agent_ref does not resolve: {m.group(1)}")
+
+        # the orchestrator seat: the only legal source of delegates_to
+        lead_ids = {f"{pod}.{mid}" for pod, mid in re.findall(
+            r"- id: (\w+)\n(?:.*\n)*?      - id: (\w+)\n        agent_ref: \"local:[^\"]*ops-lead\"", text)}
+        lead_seats = lead_ids or {"orch.lead"}
+
+        for kind, src, dst in re.findall(
+                r"\{kind:\s*(\w+),\s*from:\s*([\w.]+),\s*to:\s*([\w.]+)\}", text):
+            if kind == "delegates_to" and src not in lead_seats:
+                errors.append(
+                    f"{rel}: delegates_to from {src} to {dst} — writes must not chain "
+                    f"between specialists; only {'/'.join(sorted(lead_seats))} may delegate")
+            if kind not in {"delegates_to", "can_observe", "escalates_to"}:
+                warnings.append(f"{rel}: unknown edge kind {kind!r}")
+
+
+
+
+REQUIRED_LIMITS = [
+    ("force-push protected branches", "Force-push, or push to `main`, `master`, or `develop`"),
+    ("terraform destroy", "Run `terraform destroy`, in any environment"),
+    ("self-widening permissions", "Widen your own permissions"),
+    ("unrelated changes in a plan", "touches resources\n  outside the task"),
+    ("credentials exceed remit", "may permit far more than your remit"),
+]
+
+
+def check_safety_limits() -> None:
+    """Every agent carries the universal limits verbatim.
+
+    A limit worded differently in twelve places is twelve limits, and the
+    difference is invisible until one of them is the lenient one.
+    """
+    for agent in sorted(ROOT.glob("plugins/*/agents/*.agent.md")):
+        text = agent.read_text(encoding="utf-8")
+        rel = agent.relative_to(ROOT)
+        if "## Boundaries" not in text:
+            errors.append(f"{rel}: no Boundaries section")
+            continue
+        for label, needle in REQUIRED_LIMITS:
+            if needle not in text:
+                errors.append(f"{rel}: missing universal limit ({label})")
+
+
 def main() -> int:
     for check in (
         check_json,
@@ -163,6 +252,9 @@ def main() -> int:
         check_forbidden,
     ):
         check()
+    check_safety_limits()
+    check_openrig_projection()
+    check_rigs()
 
     for warning in warnings:
         print(f"warn:  {warning}")

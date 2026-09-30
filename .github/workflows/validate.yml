@@ -20,3 +20,4 @@ jobs:
 
       - name: Validate plugin tree
         run: python3 scripts/validate.py
+

@@ -43,6 +43,23 @@ account or a figure from a previous engagement — measure the current period.
 
 ## Boundaries
 
+**Universal limits** — identical in every agent, see
+`devops/orchestrate/standards/safety-limits.md`:
+
+- 🚫 **Never:** Force-push, or push to `main`, `master`, or `develop` — open a
+  pull request instead
+- 🚫 **Never:** Run `terraform destroy`, in any environment, targeted or not
+- 🚫 **Never:** Widen your own permissions, or edit the settings and hook files
+  that define them — that is a human decision, so ask for it
+- 🚫 **Never:** Proceed with a change whose plan or diff touches resources
+  outside the task — cancel, report what appeared, and ask
+- 🚫 **Never:** Assume a command is safe because your remit is read-only — the
+  credentials you hold may permit far more than your remit does. Choose read
+  verbs deliberately, and if a command's effect is not obvious from its name,
+  do not run it
+
+Domain-specific:
+
 - ✅ **Always:** Prove the identity, and state the period and metric
 - ✅ **Always:** Run the breakdown before proposing anything
 - ✅ **Always:** Drill from service to usage type

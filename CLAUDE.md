@@ -90,12 +90,71 @@ short version:
 6. Register in **both**:
    - `.claude-plugin/marketplace.json`
    - `plugins/devops/skills/orchestrate/standards/routing-table.md`
+   - then run `python3 scripts/gen-openrig.py` to refresh the OpenRig
+     projection (`openrig/agents/`), which reads the routing table for the
+     agent's hub skill
 
 > An agent absent from the routing table is never dispatched, however good
-> its description is. This is the step people forget.
+> its description is. This is the step people forget. It now also means the
+> agent gets no OpenRig seat, since the projection is generated from that
+> table.
 
 Add a **disambiguation row** too if the new domain overlaps an existing one.
 That row is usually worth more than the agent itself.
+
+## The OpenRig projection
+
+`openrig/agents/` and `rigs/` let this repo run as an OpenRig rig, where each
+agent occupies a seat with a stable address instead of being a subagent inside
+one session.
+
+**`openrig/agents/` is generated. Never hand-edit it** — `scripts/validate.py`
+fails if it drifts from the plugins.
+
+```bash
+python3 scripts/gen-openrig.py           # after changing any agent
+python3 scripts/gen-openrig.py --check   # what CI runs
+```
+
+The projection references hub skills by name; it copies no action or standard.
+That is deliberate — two copies of a standard is two standards.
+
+### The topology is the handoff contract
+
+A rig's `edges` are the machine-readable form of
+`standards/handoff-contract.md`:
+
+| Contract rule | Edge |
+|---------------|------|
+| the orchestrator dispatches every routing-table agent | `delegates_to` from the lead seat |
+| a read-only question, peer to peer, one hop | `can_observe` |
+| out-of-domain work returns upward | `escalates_to` |
+| **writes never chain** | **no `delegates_to` between specialists** |
+
+The validator enforces that last row: a `delegates_to` whose source is not the
+lead seat is an error, not a warning.
+
+**The enforcement is at build time, not run time.** OpenRig 0.6.2 accepts
+`edges` — `rig spec validate` passes — but does not materialise them into
+runtime state, and `/api/rigs` carries no edge data. A `rig send` reaches any
+seat regardless of the graph. So the edges are a declaration the validator
+holds you to, and at run time the handoff rules are carried by `CULTURE.md` and
+each agent's own Boundaries. Do not describe them as runtime constraints.
+
+### Rigs
+
+| Rig | Seats | Use |
+|-----|-------|-----|
+| `devops-lead` | the orchestrator alone | grow specialists per task with `rig grow`; a grown seat starts with no accrued context |
+| `devops-readonly` | lead + 5 strictly read-only | a lower-risk first run |
+| `devops-full` | all twelve | ordinary work |
+
+A managed seat runs with `permissions.defaultMode: acceptEdits` and a
+pre-trusted workspace. `rig setup` is explicit that OpenRig "bakes NO
+allow/ask/deny permission policy — the harness-native permissions are the
+control surface", so a deny rule still applies inside a seat. What a seat does
+*not* have is a human to answer a prompt, which is why the limits are written
+as behaviour and why `safety-limits.md` treats them as the primary mechanism.
 
 ## Adding a skill or action to an existing agent
 
