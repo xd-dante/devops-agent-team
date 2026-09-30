@@ -134,18 +134,27 @@ A rig's `edges` are the machine-readable form of
 The validator enforces that last row: a `delegates_to` whose source is not the
 lead seat is an error, not a warning.
 
-### Why mutating seats have no rig yet
+**The enforcement is at build time, not run time.** OpenRig 0.6.2 accepts
+`edges` — `rig spec validate` passes — but does not materialise them into
+runtime state, and `/api/rigs` carries no edge data. A `rig send` reaches any
+seat regardless of the graph. So the edges are a declaration the validator
+holds you to, and at run time the handoff rules are carried by `CULTURE.md` and
+each agent's own Boundaries. Do not describe them as runtime constraints.
+
+### Rigs
+
+| Rig | Seats | Use |
+|-----|-------|-----|
+| `devops-lead` | the orchestrator alone | grow specialists per task with `rig grow`; a grown seat starts with no accrued context |
+| `devops-readonly` | lead + 5 strictly read-only | a lower-risk first run |
+| `devops-full` | all twelve | ordinary work |
 
 A managed seat runs with `permissions.defaultMode: acceptEdits` and a
-pre-trusted workspace. Every "⚠️ Ask first" and gated precondition in this repo
-is prose in an agent's Boundaries section, and **prose is not enforcement**. A
-gate that works interactively does not survive being run as an auto-accepting
-seat.
-
-So `rigs/devops-readonly` contains only strictly read-only seats. Adding a
-`gated` or `mutating` seat raises a validator warning until gate hooks exist.
-Relocating those gates to `PreToolUse` hooks is the next piece of work; do not
-add mutating seats before it lands.
+pre-trusted workspace. `rig setup` is explicit that OpenRig "bakes NO
+allow/ask/deny permission policy — the harness-native permissions are the
+control surface", so a deny rule still applies inside a seat. What a seat does
+*not* have is a human to answer a prompt, which is why the limits are written
+as behaviour and why `safety-limits.md` treats them as the primary mechanism.
 
 ## Adding a skill or action to an existing agent
 

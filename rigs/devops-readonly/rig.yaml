@@ -43,7 +43,7 @@ pods:
     members:
       - id: investigator
         agent_ref: "local:../../openrig/agents/aws-investigator"
-        runtime: codex
+        runtime: claude-code
         profile: default
         cwd: "."
       - id: cost

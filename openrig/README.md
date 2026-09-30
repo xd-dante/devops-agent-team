@@ -17,6 +17,52 @@ Agent → hub skill comes from
 directory layout: one plugin can own several hub skills, and an agent missing
 from the routing table is never dispatched, so it gets no seat either.
 
+## Edges are validated, not enforced
+
+`rig spec validate` accepts a rig's `edges`, but OpenRig 0.6.2 does **not**
+materialise them into runtime state — `/api/rigs` carries no edge data, and a
+`rig send` reaches any seat regardless of the graph.
+
+So the topology is a declaration that `scripts/validate.py` holds the repo to
+(a specialist-to-specialist `delegates_to` fails CI), and at run time the
+handoff rules live in `rigs/CULTURE.md` and each agent's Boundaries. Useful,
+and not a runtime constraint — an earlier revision of this README claimed
+otherwise.
+
+## Operating it: things that cost an hour to learn
+
+- **One `rig` operation at a time.** A six-seat launch takes longer than the
+  CLI's 120s patience, so the CLI prints a daemon timeout while the launch is
+  still running. Issuing another command during that window produced
+  `HTTP 500 import_rig`, two rigs with the same name, and six half-launched
+  seats. `rig ps` is the truth, not the CLI's exit message.
+- **A single-seat launch returns in about ten seconds**, cleanly. `devops-lead`
+  plus `rig grow` is genuinely pleasant; the full roster is where the timeout
+  appears.
+- **`rig down <name>` leaves the record**, and a later launch of the same name
+  fails. `rig down <name> --delete` frees it. With two records sharing a name,
+  the CLI refuses by name and wants the id — deliberately.
+- **`rig up` opens no windows.** It creates detached tmux sessions. Views come
+  from `rig terminal open <rig>` (herdr is the default provider) or
+  `rig tui --shared`.
+- **`rig terminal` needs herdr already running**, since it drives it over a
+  control socket; otherwise `available: false, "herdr control socket is not
+  answering ping"`. There is no config key to auto-open a view, so wrap it:
+
+  ```bash
+  rigup() {
+    local spec="$1"; shift
+    local name; name=$(awk '/^name:/{print $2; exit}' "$spec")
+    rig up "$spec" --yes --cwd "${RIG_CWD:-$PWD}" "$@" || return 1
+    rig terminal open "$name"
+  }
+  ```
+
+- **Seats default to the rig directory**, not the repo root — pass `--cwd` or
+  they work in a folder containing only `rig.yaml`.
+- **`ui.timezone` defaults to `America/Los_Angeles`**; set it or every
+  timestamp misleads.
+
 ## Two things found by actually booting it
 
 **Skills are not referenced by name.** `uses.skills` resolves against an
