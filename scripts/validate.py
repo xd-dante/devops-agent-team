@@ -152,6 +152,35 @@ def check_forbidden() -> None:
                     )
 
 
+def check_agent_memory() -> None:
+    """Every agent declares its own memory scope and preloads its hub skill.
+
+    An agent without `memory:` silently relearns the estate every task, and the
+    omission is invisible - nothing fails, it is just slower and more wrong.
+    """
+    for agent in sorted(ROOT.glob("plugins/*/agents/*.agent.md")):
+        text = agent.read_text(encoding="utf-8")
+        rel = agent.relative_to(ROOT)
+        m = re.match(r"^---\n(.*?)\n---\n", text, re.S)
+        if not m:
+            errors.append(f"{rel}: no frontmatter")
+            continue
+        fm = m.group(1)
+        mem = re.search(r"^memory:\s*(\S+)", fm, re.M)
+        if not mem:
+            errors.append(f"{rel}: no `memory:` scope declared")
+        elif mem.group(1) not in {"user", "project", "local"}:
+            errors.append(f"{rel}: memory scope {mem.group(1)!r} is not user/project/local")
+        elif mem.group(1) != "user":
+            warnings.append(
+                f"{rel}: memory scope {mem.group(1)!r} writes inside the repo — "
+                f"`user` keeps site-specific facts out of version control")
+        if not re.search(r"^skills:", fm, re.M):
+            warnings.append(f"{rel}: no `skills:` preload — the hub skill is discovered each dispatch")
+        if "remember" not in fm:
+            warnings.append(f"{rel}: the remember skill is not preloaded, so shared memory is not read")
+
+
 def main() -> int:
     for check in (
         check_json,
@@ -159,6 +188,7 @@ def main() -> int:
         check_frontmatter,
         check_links,
         check_routing_table,
+        check_agent_memory,
         check_memory_not_committed,
         check_forbidden,
     ):
