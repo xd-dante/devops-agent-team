@@ -31,6 +31,7 @@ have applied.
 | Standard | File | Description |
 |----------|------|-------------|
 | Routing Table | `standards/routing-table.md` | Domain → agent, plus disambiguation rules |
+| Dispatch Mode | `standards/dispatch-mode.md` | Subagent or teammate: by access class and request shape, with what changes about an agent in each |
 | Delegation Protocol | `standards/delegation-protocol.md` | Briefing, parallelism, verification, escalation |
 | Handoff Contract | `standards/handoff-contract.md` | Agent-to-agent messages; reads go sideways, writes do not |
 | Report Format | `standards/report-format.md` | The one consolidated report shape |

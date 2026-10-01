@@ -58,14 +58,17 @@ document.
 
 ## Fan-out sets
 
-| Request shape | Set |
-|---------------|-----|
-| Ticket delivery | `ticket-analyst` → `delivery-engineer` (worktree) → `codegraph-navigator` (orient, if the repo is unfamiliar) → domain specialists → `delivery-engineer` (PR) |
-| "X is down in \<env\>" | `newrelic-analyst` for the timeline, plus `kubernetes-investigator` + `argocd-analyst` + `aws-investigator` in parallel, then one root cause |
-| Daily / morning check | `newrelic-analyst` alone — it escalates only what it finds |
-| Deploy not arriving | `kargo-promoter` + `argocd-analyst` |
-| Cost review | `aws-cost-analyzer`, then `terraform-engineer` for the fix |
-| Value change across repos | `helm-engineer` + `terraform-engineer`, ordered by dependency |
+Mode per `standards/dispatch-mode.md`; with agent teams disabled every row
+falls back to subagents.
+
+| Request shape | Set | Mode |
+|---------------|-----|------|
+| Ticket delivery | `ticket-analyst` → `delivery-engineer` (worktree) → `codegraph-navigator` (orient, if the repo is unfamiliar) → domain specialists → `delivery-engineer` (PR) | subagents, sequential |
+| "X is down in \<env\>" | `newrelic-analyst` for the timeline, plus `kubernetes-investigator` + `argocd-analyst` + `aws-investigator` in parallel, then one root cause | **team**, read-only members |
+| Daily / morning check | `newrelic-analyst` alone — it escalates only what it finds | subagent |
+| Deploy not arriving | `kargo-promoter` + `argocd-analyst` | subagents, or a 2-member team |
+| Cost review | `aws-cost-analyzer`, then `terraform-engineer` for the fix | subagents, ordered |
+| Value change across repos | `helm-engineer` + `terraform-engineer`, ordered by dependency | subagents, ordered |
 
 ## Preflight
 
