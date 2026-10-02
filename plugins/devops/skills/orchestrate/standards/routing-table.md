@@ -18,6 +18,7 @@ The dispatch contract. A domain is resolved here, not from intuition.
 | Promotion: Freight, Warehouse, Stage, PromotionTask | `kargo-promoter` | `kargo` | `kargo-promote` |
 | Cloud resource behaviour: database, network, IAM, logs | `aws-investigator` | `aws` | `aws-investigate` |
 | Cloud money: cost, spend, bill, rightsizing, savings | `aws-cost-analyzer` | `aws` | `aws-cost-analysis` |
+| Security posture: Security Hub, GuardDuty, Inspector findings, OpsCenter backlog | `aws-investigator` | `aws` | `aws-security-review` |
 | Observability: is anything wrong, daily check, alert coverage, dashboards | `newrelic-analyst` | `newrelic` | `newrelic-triage` |
 | Where is this used, who calls it, what will this break | `codegraph-navigator` | `codegraph` | `navigate` |
 
@@ -34,6 +35,8 @@ These pairs get confused. Resolve with the rule, not a guess.
 | "node count / autoscaling" | `kubernetes-investigator` | Read from the cluster; the fix lands in Terraform |
 | "the database is slow" | `aws-investigator` | Engine and instance behaviour |
 | "the database is expensive" | `aws-cost-analyzer` | Money questions always go to cost, same resource or not |
+| "fix the security findings" | `aws-investigator` (fix plan), then `terraform-engineer` per fix | The plan names owners; code changes and resolves are separate, gated steps |
+| "close the stale OpsCenter items" | `aws-investigator` prepares the list; the user approves the resolve | A bulk resolve is a mutation; the read-only agent never runs it |
 | "is anything broken?" with no service named | `newrelic-analyst` | Start from the monitoring verdict; it names which service to dig into |
 | "why is `<service>` slow" | `newrelic-analyst`, then the owner it routes to | Golden signals say *which* kind of slow, which decides the next agent |
 | "we got paged, what happened" | `newrelic-analyst` | It holds the issue and deploy timeline; the cluster agent holds the pod evidence |

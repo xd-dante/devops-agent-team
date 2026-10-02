@@ -22,6 +22,9 @@ nowhere.
 | Network Path | `actions/network-path.md` | Trace source → destination hop by hop, including pod-level identity |
 | Access Denied | `actions/access-denied.md` | Simulate the decision; verify identity bindings and key grants |
 
+Security-posture findings and the operations-item backlog have their own
+skill: `aws-security-review`.
+
 ## Standards
 
 | Standard | File | Description |

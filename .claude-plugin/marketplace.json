@@ -98,7 +98,7 @@
     },
     {
       "name": "aws",
-      "description": "Cloud resource investigation and cost analysis",
+      "description": "Cloud resource investigation, security findings review, and cost analysis",
       "version": "1.0.0",
       "author": {
         "name": "Pratik Makwana",
