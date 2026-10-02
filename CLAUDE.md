@@ -97,6 +97,43 @@ short version:
 Add a **disambiguation row** too if the new domain overlaps an existing one.
 That row is usually worth more than the agent itself.
 
+## Agent memory
+
+Every agent declares two frontmatter fields, and `scripts/validate.py` fails if
+one is missing:
+
+```yaml
+memory: user          # ~/.claude/agent-memory/<name>/ — this agent's own craft
+skills:
+  - <its hub skill>   # preloaded, so the router is not rediscovered per dispatch
+  - remember          # the shared memory skill
+```
+
+`memory: user` on purpose. `project` and `local` write **inside the repository
+being worked on**, where site-specific facts can reach version control; the
+validator warns on both.
+
+### Three tiers — do not collapse them
+
+| Tier | Lives in | Written by | Read by |
+|------|----------|-----------|---------|
+| Standing instructions | `instructions.md` in the memory directory | the user | every agent |
+| Shared estate facts | `entries/<slug>.md` | an agent **offers**, the user approves | every agent |
+| Accrued craft | `~/.claude/agent-memory/<agent>/MEMORY.md` | the agent, unsupervised | that agent only |
+
+The third tier is new and is the one to be careful with: nobody approves a
+write, the first **200 lines or 25KB** land in the system prompt of every future
+task, and a wrong line there is read as fact. The rules — the line budget,
+recording how a fact was learned, and promoting estate-wide facts to the
+shared tier instead of hoarding them — are in
+`memory/remember/standards/agent-memory-discipline.md`. Read it before changing
+anything about memory.
+
+**Unverified by us:** the documentation does not say whether `memory:` and
+`skills:` are honoured for *plugin* subagents, and it does say `mcpServers` and
+frontmatter `hooks` are ignored for them. Confirm behaviour before relying on
+it.
+
 ## Adding a skill or action to an existing agent
 
 - New action → `skills/<hub>/actions/<flow>.md`, plus a row in that skill's

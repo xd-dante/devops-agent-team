@@ -28,6 +28,7 @@ asymmetry is the design.
 |----------|------|-------------|
 | Memory Layout | `standards/memory-layout.md` | Resolution order, entry format, index lines, writing rules |
 | What to Remember | `standards/what-to-remember.md` | Types, scope, what does not qualify, staleness |
+| Agent Memory Discipline | `standards/agent-memory-discipline.md` | The per-agent `memory:` directory: the three tiers, the 200-line budget, promotion, and recording how you know |
 | Privacy Rules | `standards/privacy-rules.md` | Never leaves the machine; the one legitimate path outward |
 | Checklist | `standards/checklist.md` | Per-capability checks |
 
@@ -45,6 +46,10 @@ asymmetry is the design.
 7. **Never leaves the machine** — not into a commit, a PR, a doc, or this
    repo. A *lesson* may be generalised into a rule; the entry stays local.
 8. **Optional by design** — no memory directory is not an error.
+9. **Per-agent memory is unsupervised** — each agent declares `memory: user`
+   and writes its own accrued craft without approval. Every line must say how
+   it was learned, and an estate-wide fact gets offered to the shared tier
+   rather than kept private. See `standards/agent-memory-discipline.md`.
 
 ## Usage
 
