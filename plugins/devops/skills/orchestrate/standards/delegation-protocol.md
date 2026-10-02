@@ -8,6 +8,9 @@ One line each, for yourself:
 - **Domain(s)** — resolved via `routing-table.md`
 - **Mutation?** — does this change infrastructure, a cluster, or a repo
 - **Environment** — unstated is *not* production, and *not* safe either. Ask
+- **Dispatch mode** — subagent or teammate, per `dispatch-mode.md`. Decide it
+  here: investigation fans out, delivery runs as a chain, and an agent that
+  writes files is never dispatched in parallel with another that does
 
 **🛑 STOP and ask** when the domain is still ambiguous after the
 disambiguation rules, when a mutating task has no stated environment, or when
@@ -34,7 +37,9 @@ A specialist starts with **no conversation history**. Every brief carries:
 - **Parallel** — disjoint reads, neither needs the other's output.
 - **Sequential** — one's output is the other's input, or an apply order
   exists.
-- **Never** two mutating agents at the same target at once.
+- **Never** two mutating agents at the same target at once. As teammates they
+  would overwrite each other's files rather than queue; as subagents in a
+  chain they cannot.
 - **Don't dispatch a write that references another write's output before
   that output exists.** Recording "PR link: pending" now and following up
   with "here's the link" later costs two round trips (and, if the
