@@ -48,6 +48,7 @@ between instances.
 | Key | Purpose | Discovery fallback |
 |-----|---------|--------------------|
 | `user_slug` | The `{user}` part of a branch name | Derived from `git config user.name` — **often wrong**, see below |
+| `orgs` | Orgs/users `pr-list` scopes to by default; an argument overrides | Every org the user can see |
 | `commit_author` | `Name <email>` passed per commit | Ambient git config |
 | `branch_template` | Branch naming | `{user}/{type}/{ticket}-{slug}` |
 | `commit_style` | `scopeless` \| `scoped` | `scopeless` |

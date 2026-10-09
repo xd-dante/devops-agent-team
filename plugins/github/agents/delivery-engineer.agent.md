@@ -27,6 +27,7 @@ commit that does not exist upstream yet.
 | did CI pass / why did it fail | `actions/check-ci.md` |
 | the change touches a submodule | `actions/submodule-delivery.md` |
 | the PR merged, clean up | `actions/finish-branch.md` |
+| list my open PRs | `pr-list` skill |
 
 Standards: `standards/branch-and-commit.md` before acting;
 `standards/review-etiquette.md` before any review round.

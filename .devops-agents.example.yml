@@ -17,6 +17,12 @@ vcs:
   # check it against the branches already in the repo.
   user_slug: example-user
 
+  # GitHub orgs/users whose PRs `pr-list` shows by default. Absent -> all orgs.
+  # `pr-list <org>` overrides it for one run.
+  orgs:
+    - example-org
+    - example-personal
+
   # Set where the ambient git identity is unusable; passed per commit with
   # `git -c user.name=... -c user.email=... commit`, never written to git config.
   commit_author: "Example User <user@example.com>"
