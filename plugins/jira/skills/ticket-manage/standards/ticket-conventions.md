@@ -1,33 +1,13 @@
 # Ticket Conventions
 
-## Titles — 2–5 words, no leading verb, ~50 char ceiling, no trailing period
+## Titles and descriptions
 
-A title names the subject. The issue type carries the verb.
+Owned by the `ticket-writing` skill: `standards/title-rules.md` (per-type
+length and verb rules — a Task takes a verb, a Story does not) and
+`standards/body-format.md` (one-paragraph description, weighted criteria).
+Not restated here, so the two cannot drift apart.
 
-```
-✅  Promotion pipeline dedup
-✅  Production runner images
-✅  API server alerting
-✅  Connection pool evaluation
-
-🚫  Add deduplication for the promotion pipeline so we stop copy-pasting
-🚫  Investigate why the stage shows unhealthy
-🚫  Fix the thing with the runners
-```
-
-Short titles stay greppable and scannable in a board view. Detail belongs in
-the description.
-
-## Descriptions
-
-- What and why, in one to three short paragraphs
-- Current behaviour, then desired behaviour
-- Links to the repos and files involved
-- Acceptance criteria in the **acceptance-criteria field**, not buried in
-  prose
-
-Do not write the implementation plan into the ticket. The ticket states the
-problem; the PR states the solution.
+The ticket states the problem; the PR states the solution.
 
 ## Cross-references
 

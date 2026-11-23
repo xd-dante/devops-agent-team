@@ -11,7 +11,7 @@ Look for a ticket id matching the configured pattern (default
 | Found? | Do |
 |--------|----|
 | Yes | `HANDOFF → ticket-analyst` with `actions/read-ticket.md` |
-| No | `HANDOFF → ticket-analyst` with `actions/create-ticket.md`, then read it back |
+| No | `HANDOFF → ticket-analyst` with `actions/create-ticket.md`; it returns a draft awaiting approval — show it to the user, then resume the same agent with the approved draft to create and read it back |
 
 Require back: summary, description, acceptance criteria, environment, linked
 issues, **and the content of every attachment**.

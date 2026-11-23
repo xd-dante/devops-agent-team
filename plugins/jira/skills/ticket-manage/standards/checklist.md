@@ -11,11 +11,9 @@
 
 ## Creating
 - [ ] Duplicate search run first
-- [ ] Title 2–5 words, no leading verb
-- [ ] Description states what and why, not the implementation plan
-- [ ] Acceptance criteria in their own field
-- [ ] Field ids discovered, not hardcoded
-- [ ] Assignee resolved via lookup, never guessed
+- [ ] Drafted through `ticket-writing`; project resolved via `project-resolving`
+- [ ] Full draft approved at the review gate before create
+- [ ] Created issue read back
 - [ ] One ticket per independently actionable item
 
 ## Updating

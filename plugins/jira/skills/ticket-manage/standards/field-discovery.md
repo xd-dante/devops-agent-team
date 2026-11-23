@@ -4,6 +4,13 @@
 field ids differ between instances and change over time. A hardcoded id is
 the most common reason a working ticket flow breaks in someone else's setup.
 
+## Creating a ticket
+
+Use the `project-resolving` skill. It caches the stable ids in a local
+project profile, looks up the volatile ones live, applies per-project field
+quirks, and hands back a ready create call. The rules below cover reads and
+updates.
+
 ## Resolve in this order
 
 1. **`.devops-agents.yml`** — `tracker.base_url`, `tracker.project_key`,

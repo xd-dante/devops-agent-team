@@ -9,7 +9,7 @@ The dispatch contract. A domain is resolved here, not from intuition.
 
 | Signal in the request | Agent | Plugin | Hub skill |
 |-----------------------|-------|--------|-----------|
-| Ticket: read, create, comment, transition, search | `ticket-analyst` | `jira` | `ticket-manage` |
+| Ticket: read, create, comment, transition, search | `ticket-analyst` | `jira` | `ticket-manage`, `ticket-writing` |
 | Worktree, branch, commit, PR, review comments, CI | `delivery-engineer` | `github` | `pr-deliver` |
 | Terraform: plan, apply, module, variable, state, workspace | `terraform-engineer` | `terraform` | `terraform-change` |
 | Helm: chart templates, values, library chart, render | `helm-engineer` | `helm` | `helm-authoring` |
