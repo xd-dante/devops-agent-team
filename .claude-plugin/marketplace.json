@@ -21,8 +21,8 @@
     },
     {
       "name": "jira",
-      "description": "Ticket context, creation, comments and transitions",
-      "version": "1.0.0",
+      "description": "Ticket context, drafting with a review gate, project resolving, comments and transitions",
+      "version": "1.1.0",
       "author": {
         "name": "Pratik Makwana",
         "url": "https://github.com/xd-dante"

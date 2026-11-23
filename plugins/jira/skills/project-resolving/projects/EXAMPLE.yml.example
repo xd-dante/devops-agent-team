@@ -1,0 +1,51 @@
+# Template for a local project profile. Copy to
+#   <workspace>/.devops-agents/jira/projects/<KEY>.yml
+# (gitignored) and fill in from your tracker. Never commit the real file:
+# it names your site, cloud id and team ids.
+# Schema: standards/project-profile.md
+
+schema_version: 1
+verified: 2026-01-01            # last time the ids below were checked live
+site: example.atlassian.net
+cloud_id: <cloud id>
+key: PROJ
+name: Example Project
+board_id: <board id>
+
+fields:                         # custom field id per role, discovered per site
+  team: customfield_<id>
+  sprint: customfield_<id>
+  story_points: customfield_<id>
+  acceptance_criteria: customfield_<id>
+  pull_request: customfield_<id>
+
+issue_types:
+  Story:    { id: "<id>", default: true, sprint: required, acceptance_criteria: true }
+  Task:     { id: "<id>", sprint: required, acceptance_criteria: true }
+  Bug:      { id: "<id>", sprint: required, acceptance_criteria: true }
+  Epic:     { id: "<id>", sprint: omit, acceptance_criteria: false }
+  Sub-task: { id: "<id>", sprint: required, acceptance_criteria: true, requires_parent: true }
+
+components: [<Component A>, <Component B>]
+
+teams:
+  - { name: <Team name>, id: <team id>, default: true }
+
+defaults:
+  priority: Medium
+  assignee: current_user        # current_user | unassigned
+  labels: []
+  content_format: markdown
+
+field_rules:
+  - field: reporter
+    action: omit
+    on: [create, edit]
+    reason: "Screen scheme hides Reporter; the API rejects setting it."
+    user_note: "Set the reporter in the tracker UI if needed."
+  - field: parent
+    action: top_level
+
+repo_hints:
+  ticket_prefix: PROJ
+  git_remotes: ["<org substring in your remote URLs>"]

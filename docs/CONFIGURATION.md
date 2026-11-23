@@ -43,6 +43,17 @@ Field ids (sprint, story points, acceptance criteria) are **discovered per
 site** via the tracker's own metadata API, never hardcoded. They differ
 between instances.
 
+**Project profiles.** Ticket creation reads the stable per-project facts —
+cloud id, custom field ids, issue types, components, teams, field quirks —
+from a local profile, `.devops-agents/jira/projects/<KEY>.yml`, found by
+walking up like this file (or `$DEVOPS_AGENT_JIRA_PROJECTS`, or
+`~/.devops-agents/jira/projects/`). It is gitignored with the rest of
+`.devops-agents/`. Copy the template from
+`plugins/jira/skills/project-resolving/projects/EXAMPLE.yml.example`, or let
+the `project-resolving` skill build one from live metadata on first use and
+offer to save it. Sprint ids, account ids and epic keys are never cached
+there.
+
 ### `vcs`
 
 | Key | Purpose | Discovery fallback |

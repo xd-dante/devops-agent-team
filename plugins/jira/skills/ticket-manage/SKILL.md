@@ -17,7 +17,7 @@ attachment, or the last comment.
 | Capability | Action | Description |
 |------------|--------|-------------|
 | Read Ticket | `actions/read-ticket.md` | Description, criteria, **attachments**, comments, links, affected repos |
-| Create Ticket | `actions/create-ticket.md` | Duplicate check, discovered field ids, sane defaults |
+| Create Ticket | `actions/create-ticket.md` | Duplicate check, then hand off to `ticket-writing` (draft, review gate, create) |
 | Update Ticket | `actions/update-ticket.md` | Comment with the reasoning, then transition |
 | Search Tickets | `actions/search-tickets.md` | Duplicates, prior work, roundups |
 
@@ -25,8 +25,8 @@ attachment, or the last comment.
 
 | Standard | File | Description |
 |----------|------|-------------|
-| Ticket Conventions | `standards/ticket-conventions.md` | Title rules, description shape, cross-references |
-| Field Discovery | `standards/field-discovery.md` | Resolve site, project, board and custom field ids at runtime |
+| Ticket Conventions | `standards/ticket-conventions.md` | Cross-references, comments, one ticket per item |
+| Field Discovery | `standards/field-discovery.md` | Resolve ids at runtime for reads and updates; creation uses `project-resolving` |
 | Checklist | `standards/checklist.md` | Reading, creating, updating and reporting checks |
 
 ## Principles
@@ -34,7 +34,8 @@ attachment, or the last comment.
 1. **Read the attachments** — they regularly carry the real requirement.
 2. **Read the comments to the end** — the last one often changed the plan.
 3. **Restate scope before implementing** — the cheapest misread-catcher.
-4. **Titles name subjects** — 2–5 words, no leading verb.
+4. **Creation goes through `ticket-writing`** — per-type title rules and a
+   review gate; project metadata from `project-resolving`.
 5. **Reasoning before status** — a transition without a comment is a dead end.
 6. **Discover ids, never hardcode** — they differ per instance and change.
 7. **Never invent to fill a gap** — an ambiguous ticket gets a question.
